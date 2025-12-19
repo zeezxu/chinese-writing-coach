@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     app_name: str = "Chinese Writing Coach"
     debug: bool = True
     
-    # Anthropic API
-    anthropic_api_key: str
+    # OpenAI API
+    openai_api_key: str
     
     # Database
     database_url: str = "sqlite:///./chinese_writing.db"
@@ -31,4 +31,4 @@ def get_settings():
 # Usage example:
 # from app.config import get_settings
 # settings = get_settings()
-# api_key = settings.anthropic_api_key
+# api_key = settings.openai_api_key
