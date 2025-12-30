@@ -1,11 +1,17 @@
 // src/pages/AnalysisResultsPage.tsx
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trophy, BookOpen, MessageSquare, FileText } from 'lucide-react';
-import { essaysApi } from '@/api/essays';
-import type { Analysis, Essay, SentenceDetail, SentenceIssue } from '@/types';
-import ElementBadge from '@/components/shared/ElementBadge';
-import { calculateElement } from '@/utils/fiveElements';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Trophy,
+  BookOpen,
+  MessageSquare,
+  FileText,
+} from "lucide-react";
+import { essaysApi } from "@/api/essays";
+import type { Analysis, Essay, SentenceDetail, SentenceIssue } from "@/types";
+import ElementBadge from "@/components/shared/ElementBadge";
+import { calculateElement } from "@/utils/fiveElements";
 
 export default function AnalysisResultsPage() {
   const { essayId } = useParams<{ essayId: string }>();
@@ -27,9 +33,9 @@ export default function AnalysisResultsPage() {
         setAnalysis(analysisData);
         setEssay(essayData);
       } catch (error) {
-        console.error('Failed to fetch analysis:', error);
-        alert('Failed to load analysis');
-        navigate('/practice');
+        console.error("Failed to fetch analysis:", error);
+        alert("Failed to load analysis");
+        navigate("/practice");
       } finally {
         setLoading(false);
       }
@@ -65,7 +71,7 @@ export default function AnalysisResultsPage() {
     <div className="space-y-6 pb-8">
       {/* Back Button */}
       <button
-        onClick={() => navigate('/profile')}
+        onClick={() => navigate("/profile")}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
@@ -76,24 +82,33 @@ export default function AnalysisResultsPage() {
       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 p-8 text-center">
         <div className="mb-4">
           <div className="inline-block">
-            <ElementBadge element={element.name} level={element.level} size="lg" showLevel={false} />
+            <ElementBadge
+              element={element.name}
+              level={element.level}
+              size="lg"
+              showLevel={false}
+            />
           </div>
         </div>
-        
+
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          🎉 Analysis Complete!
+          Analysis Complete!
         </h1>
-        
+
         <div className="text-6xl font-bold text-blue-600 mb-2">
           {analysis.overall_score}/100
         </div>
-        
+
         <p className="text-gray-700 text-lg">
-          {analysis.overall_score >= 90 ? 'Outstanding work!' :
-           analysis.overall_score >= 80 ? 'Great job!' :
-           analysis.overall_score >= 70 ? 'Good effort!' :
-           analysis.overall_score >= 60 ? 'Keep practicing!' :
-           'You can do better!'}
+          {analysis.overall_score >= 90
+            ? "Outstanding work!"
+            : analysis.overall_score >= 80
+            ? "Great job!"
+            : analysis.overall_score >= 70
+            ? "Good effort!"
+            : analysis.overall_score >= 60
+            ? "Keep practicing!"
+            : "You can do better!"}
         </p>
       </div>
 
@@ -217,14 +232,36 @@ export default function AnalysisResultsPage() {
           </h3>
 
           <div className="space-y-3">
-            {analysis.recommendations.map((rec, index) => (
-              <div
-                key={index}
-                className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg"
-              >
-                <p className="text-gray-800">{rec}</p>
-              </div>
-            ))}
+            {analysis.recommendations
+              .filter((rec) => rec.trim() !== "") // ← Filter out empty lines
+              .map((rec, index) => {
+                // Check if it's a section header (contains 【】)
+                const isHeader = rec.includes("【") && rec.includes("】");
+
+                if (isHeader) {
+                  // Section header style
+                  return (
+                    <div
+                      key={index}
+                      className="bg-gradient-to-r from-indigo-100 to-purple-100 border-l-4 border-indigo-500 px-4 py-3 rounded-r-lg"
+                    >
+                      <p className="font-bold text-indigo-900 text-base">
+                        {rec}
+                      </p>
+                    </div>
+                  );
+                } else {
+                  // Regular content style
+                  return (
+                    <div
+                      key={index}
+                      className="bg-blue-50 border-l-4 border-blue-500 px-4 py-3 rounded-r-lg"
+                    >
+                      <p className="text-gray-800">{rec}</p>
+                    </div>
+                  );
+                }
+              })}
           </div>
         </div>
       )}
@@ -245,7 +282,7 @@ export default function AnalysisResultsPage() {
               >
                 <div className="text-2xl font-bold text-gray-900">{count}</div>
                 <div className="text-sm text-gray-600 mt-1">
-                  {level === 'unknown' ? 'Unknown' : `HSK ${level}`}
+                  {level === "unknown" ? "Unknown" : `HSK ${level}`}
                 </div>
               </div>
             ))}
@@ -262,52 +299,62 @@ export default function AnalysisResultsPage() {
           </h3>
 
           <div className="space-y-4">
-            {analysis.sentence_details.slice(0, 5).map((sentence: SentenceDetail, index: number) => (
-              <div
-                key={index}
-                className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <p className="text-gray-800 font-medium flex-1">
-                    {sentence.original}
-                  </p>
-                  <span className={`ml-4 px-2 py-1 rounded text-sm font-medium ${
-                    sentence.overall_quality >= 80
-                      ? 'bg-green-100 text-green-700'
-                      : sentence.overall_quality >= 60
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {sentence.overall_quality}/100
-                  </span>
-                </div>
+            {analysis.sentence_details
+              .slice(0, 5)
+              .map((sentence: SentenceDetail, index: number) => (
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="text-gray-800 font-medium flex-1">
+                      {sentence.original}
+                    </p>
+                    <span
+                      className={`ml-4 px-2 py-1 rounded text-sm font-medium ${
+                        sentence.overall_quality >= 80
+                          ? "bg-green-100 text-green-700"
+                          : sentence.overall_quality >= 60
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {sentence.overall_quality}/100
+                    </span>
+                  </div>
 
-                {sentence.issues && sentence.issues.length > 0 && (
-                  <div className="mt-2 space-y-2">
-                    {sentence.issues.map((issue: SentenceIssue, issueIndex: number) => (
-                      <div
-                        key={issueIndex}
-                        className="bg-red-50 border-l-4 border-red-400 p-3 text-sm"
-                      >
-                        <div className="font-medium text-red-700">{issue.type}</div>
-                        <div className="text-gray-700 mt-1">{issue.description}</div>
-                        {issue.correction && (
-                          <div className="text-green-700 mt-1">
-                            ✓ Correction: {issue.correction}
+                  {sentence.issues && sentence.issues.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      {sentence.issues.map(
+                        (issue: SentenceIssue, issueIndex: number) => (
+                          <div
+                            key={issueIndex}
+                            className="bg-red-50 border-l-4 border-red-400 p-3 text-sm"
+                          >
+                            <div className="font-medium text-red-700">
+                              {issue.type}
+                            </div>
+                            <div className="text-gray-700 mt-1">
+                              {issue.description}
+                            </div>
+                            {issue.correction && (
+                              <div className="text-green-700 mt-1">
+                                ✓ Correction: {issue.correction}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                        )
+                      )}
+                    </div>
+                  )}
 
-                {sentence.improvement_suggestion && (
-                  <div className="mt-2 text-sm text-gray-600 italic">
-                    💡 {sentence.improvement_suggestion}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {sentence.improvement_suggestion && (
+                    <div className="mt-2 text-sm text-gray-600 italic">
+                      💡 {sentence.improvement_suggestion}
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -315,13 +362,13 @@ export default function AnalysisResultsPage() {
       {/* Action Buttons */}
       <div className="flex gap-4">
         <button
-          onClick={() => navigate('/practice')}
+          onClick={() => navigate("/practice")}
           className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >
           Write Another Essay
         </button>
         <button
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate("/profile")}
           className="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
         >
           View My Essays
