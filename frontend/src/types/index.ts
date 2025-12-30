@@ -60,7 +60,7 @@ export interface VocabularyDetails {
 export interface SentenceIssue {
   type: string;
   description: string;
-  correction: string;
+  correction?: string;
   severity: 'minor' | 'major' | 'critical';
 }
 
@@ -72,7 +72,7 @@ export interface SentenceDetail {
   collocation_score: number;
   overall_quality: number;
   issues: SentenceIssue[];
-  improvement_suggestion: string;
+  improvement_suggestion?: string;
 }
 
 // Essay-level analysis types
