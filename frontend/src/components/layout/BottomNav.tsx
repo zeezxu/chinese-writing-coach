@@ -1,14 +1,16 @@
 // src/components/layout/BottomNav.tsx
 import { Link, useLocation } from 'react-router-dom';
 import { PenTool, Compass, User } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function BottomNav() {
   const location = useLocation();
+  const { t } = useLanguage();
 
   const navItems = [
-    { path: '/practice', icon: PenTool, label: 'Practice' },
-    { path: '/explore', icon: Compass, label: 'Explore' },
-    { path: '/profile', icon: User, label: 'Me' },
+    { path: '/practice', icon: PenTool, label: t('practice') },
+    { path: '/explore', icon: Compass, label: t('explore') },
+    { path: '/profile', icon: User, label: t('profile') },
   ];
 
   return (

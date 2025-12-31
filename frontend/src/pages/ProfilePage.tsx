@@ -7,9 +7,12 @@ import { essaysApi } from '@/api/essays';
 import { draftsApi } from '@/api/drafts';
 import type { EssayListItem, Draft } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import LanguageSelector from '@/components/shared/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   // TODO: Get real user ID from auth store
   const userId = '03474b93-3871-46d4-a414-7a049266b3c1'; // Temporary hardcoded
@@ -94,7 +97,7 @@ export default function ProfilePage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+          <p className="mt-4 text-gray-600">{t('loadingProfile')}</p>
         </div>
       </div>
     );
@@ -105,7 +108,7 @@ export default function ProfilePage() {
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          👋 Hi, {stats.username}!
+          👋 {t('hi')}, {stats.username}!
         </h1>
       </div>
 
@@ -121,10 +124,10 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-2xl font-bold text-orange-600">
-                🔥 {stats.streakDays} Day Streak!
+                🔥 {stats.streakDays} {t('dayStreak')}
               </div>
               <div className="text-sm text-orange-700 mt-1">
-                Keep writing to maintain your streak!
+                {t('keepWriting')}
               </div>
             </div>
           </div>
@@ -133,36 +136,39 @@ export default function ProfilePage() {
 
       {/* Stats Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">📊 Your Progress</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">📊 {t('yourProgress')}</h2>
         
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">{stats.totalEssays}</div>
-            <div className="text-sm text-gray-600 mt-1">Total Essays</div>
+            <div className="text-sm text-gray-600 mt-1">{t('totalEssays')}</div>
           </div>
           
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">
               {stats.averageScore > 0 ? stats.averageScore : '--'}
             </div>
-            <div className="text-sm text-gray-600 mt-1">Avg Score</div>
+            <div className="text-sm text-gray-600 mt-1">{t('avgScore')}</div>
           </div>
           
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-600">
               {stats.bestScore > 0 ? stats.bestScore : '--'}
             </div>
-            <div className="text-sm text-gray-600 mt-1">Best Score</div>
+            <div className="text-sm text-gray-600 mt-1">{t('bestScore')}</div>
           </div>
         </div>
       </div>
+
+      {/* Language Selector */}
+      <LanguageSelector />
 
       {/* Drafts Section */}
       {drafts.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <FileEdit className="w-5 h-5 text-orange-500" />
-            📝 Drafts ({drafts.length})
+            📝 {t('drafts')} ({drafts.length})
           </h2>
           
           <div className="space-y-3">
@@ -205,7 +211,7 @@ export default function ProfilePage() {
                     onClick={(e) => handleDeleteDraft(draft.id, e)}
                     className="ml-4 px-3 py-1 text-sm text-red-600 hover:bg-red-100 rounded transition-colors"
                   >
-                    Delete
+                    {t('delete')}
                   </button>
                 </div>
               </div>
@@ -216,16 +222,16 @@ export default function ProfilePage() {
 
       {/* Recent Essays */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">📝 Recent Essays</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">📝 {t('recentEssays')}</h2>
         
         {essays.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">You haven't written any essays yet!</p>
+            <p className="text-gray-600 mb-4">{t('noEssays')}</p>
             <button
               onClick={() => navigate('/practice')}
               className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Write Your First Essay
+              {t('writeFirst')}
             </button>
           </div>
         ) : (
