@@ -1,10 +1,11 @@
 // src/pages/ProfilePage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileEdit } from 'lucide-react';
 import ElementProgress from '@/components/profile/ElementProgress';
 import { essaysApi } from '@/api/essays';
-import type { EssayListItem } from '@/types';
+import { draftsApi } from '@/api/drafts';
+import type { EssayListItem, Draft } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function ProfilePage() {
@@ -15,6 +16,7 @@ export default function ProfilePage() {
   
   const [loading, setLoading] = useState(true);
   const [essays, setEssays] = useState<EssayListItem[]>([]);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
   const [stats, setStats] = useState({
     username: 'Tom',
     totalEssays: 0,
@@ -23,13 +25,18 @@ export default function ProfilePage() {
     streakDays: 0,
   });
 
-  // Fetch user's essays
+  // Fetch user's essays and drafts
   useEffect(() => {
-    const fetchEssays = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const essayList = await essaysApi.getAll(userId, 50, 0); // Get up to 50 essays
+        const [essayList, draftList] = await Promise.all([
+          essaysApi.getAll(userId, 50, 0),
+          draftsApi.getAll(userId),
+        ]);
+        
         setEssays(essayList);
+        setDrafts(draftList);
 
         // Calculate stats from essays
         if (essayList.length > 0) {
@@ -53,14 +60,37 @@ export default function ProfilePage() {
           }));
         }
       } catch (error) {
-        console.error('Failed to fetch essays:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEssays();
+    fetchData();
   }, [userId]);
+
+  const handleDeleteDraft = async (draftId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm('Delete this draft?')) {
+      return;
+    }
+
+    try {
+      await draftsApi.delete(draftId);
+      setDrafts(drafts.filter(d => d.id !== draftId));
+    } catch (error) {
+      console.error('Failed to delete draft:', error);
+      alert('Failed to delete draft. Please try again.');
+    }
+  };
+
+  const handleLoadDraft = (/*draft: Draft*/) => {
+    // TODO: Implement load draft functionality
+    // For now, just navigate to practice page
+    alert('Load draft feature coming soon! Will allow you to continue editing.');
+    navigate('/practice');
+  };
 
   if (loading) {
     return (
@@ -129,6 +159,63 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Drafts Section */}
+      {drafts.length > 0 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FileEdit className="w-5 h-5 text-orange-500" />
+            📝 Drafts ({drafts.length})
+          </h2>
+          
+          <div className="space-y-3">
+            {drafts.map((draft) => (
+              <div
+                key={draft.id}
+                onClick={() => handleLoadDraft(/*draft*/)}
+                className="border border-orange-200 bg-orange-50 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-100 transition-all cursor-pointer"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {draft.title || 'Untitled Draft'}
+                    </h3>
+                    
+                    <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+                      {draft.hsk_level && (
+                        <>
+                          <span className="flex items-center gap-1">
+                            📚 HSK {draft.hsk_level}
+                          </span>
+                          <span>•</span>
+                        </>
+                      )}
+                      <span>{draft.char_count} 字</span>
+                      {draft.theme && (
+                        <>
+                          <span>•</span>
+                          <span>{draft.theme}</span>
+                        </>
+                      )}
+                      <span>•</span>
+                      <span className="text-gray-500">
+                        {formatDistanceToNow(new Date(draft.updated_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={(e) => handleDeleteDraft(draft.id, e)}
+                    className="ml-4 px-3 py-1 text-sm text-red-600 hover:bg-red-100 rounded transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent Essays */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

@@ -1,13 +1,17 @@
 // src/components/practice/WritingEditor.tsx
-import { useState, useEffect } from 'react';
-import { FileText, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { FileText, ArrowLeft, Save } from "lucide-react";
 
 interface WritingEditorProps {
   level: number;
   theme: string;
   onSubmit: (data: { title: string; content: string }) => void;
+  onSaveDraft: (data: { title: string; content: string }) => void;
   onBack: () => void;
   isSubmitting?: boolean;
+  isSavingDraft?: boolean;
+  initialTitle?: string;
+  initialContent?: string;
 }
 
 // Helper function to get min chars by level
@@ -15,19 +19,23 @@ function getMinChars(level: number): number {
   return level <= 2 ? 20 : 50;
 }
 
-export default function WritingEditor({ 
-  level, 
-  theme, 
-  onSubmit, 
+export default function WritingEditor({
+  level,
+  theme,
+  onSubmit,
+  onSaveDraft,
   onBack,
-  isSubmitting = false 
+  isSubmitting = false,
+  isSavingDraft = false,
+  initialTitle = "",
+  initialContent = "",
 }: WritingEditorProps) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
+
   // Get minimum characters based on level
   const minChars = getMinChars(level);
-  
+
   // Calculate Chinese character count
   const charCount = content.match(/[\u4e00-\u9fa5]/g)?.length || 0;
   const maxChars = 500;
@@ -35,53 +43,46 @@ export default function WritingEditor({
   const isOverLimit = charCount > maxChars;
   const isTooShort = charCount < minChars;
 
-  // Auto-save to localStorage
+  // Auto-save to localStorage (backup)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (content || title) {
-        localStorage.setItem('draft', JSON.stringify({ level, theme, title, content }));
+        localStorage.setItem(
+          "draft_backup",
+          JSON.stringify({ level, theme, title, content })
+        );
       }
     }, 1000);
 
     return () => clearTimeout(timer);
   }, [title, content, level, theme]);
 
-  // Load draft on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('draft');
-    if (saved) {
-      const draft = JSON.parse(saved);
-      // Only load if same level and theme
-      if (draft.level === level && draft.theme === theme) {
-        setTitle(draft.title || '');
-        setContent(draft.content || '');
-      }
-    }
-  }, [level, theme]);
-
   const handleSubmit = () => {
     if (!title.trim()) {
-      alert('Please enter a title');
+      alert("Please enter a title");
       return;
     }
     if (isTooShort) {
-      alert(`Your essay is too short. Please write at least ${minChars} Chinese characters.`);
+      alert(
+        `Your essay is too short. Please write at least ${minChars} Chinese characters.`
+      );
       return;
     }
     if (isOverLimit) {
-      alert('Your essay is too long. Please keep it under 500 characters.');
+      alert("Your essay is too long. Please keep it under 500 characters.");
       return;
     }
 
     onSubmit({ title, content });
   };
 
-  const handleClear = () => {
-    if (confirm('Are you sure you want to clear your essay?')) {
-      setTitle('');
-      setContent('');
-      localStorage.removeItem('draft');
+  const handleSaveDraft = () => {
+    if (!title.trim() && !content.trim()) {
+      alert("Please write something before saving");
+      return;
     }
+
+    onSaveDraft({ title, content });
   };
 
   return (
@@ -91,7 +92,7 @@ export default function WritingEditor({
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isSavingDraft}
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Change Level/Theme</span>
@@ -113,7 +114,10 @@ export default function WritingEditor({
 
       {/* Title Input */}
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="title"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Essay Title (标题)
         </label>
         <input
@@ -123,7 +127,7 @@ export default function WritingEditor({
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter your essay title..."
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isSavingDraft}
         />
       </div>
 
@@ -132,22 +136,28 @@ export default function WritingEditor({
         <label htmlFor="content" className="text-sm font-medium text-gray-700">
           Write your essay (写作文)
         </label>
-        
+
         <div className="flex items-center gap-3">
           {/* Progress bar */}
           <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
+            <div
               className={`h-full transition-all ${
-                isOverLimit ? 'bg-red-500' : 'bg-blue-500'
+                isOverLimit ? "bg-red-500" : "bg-blue-500"
               }`}
               style={{ width: `${Math.min(percentage, 100)}%` }}
             />
           </div>
-          
+
           {/* Counter */}
-          <span className={`text-sm font-medium ${
-            isOverLimit ? 'text-red-600' : charCount >= minChars ? 'text-green-600' : 'text-gray-600'
-          }`}>
+          <span
+            className={`text-sm font-medium ${
+              isOverLimit
+                ? "text-red-600"
+                : charCount >= minChars
+                ? "text-green-600"
+                : "text-gray-600"
+            }`}
+          >
             {charCount} / {maxChars} 字
           </span>
         </div>
@@ -165,16 +175,17 @@ export default function WritingEditor({
         onChange={(e) => setContent(e.target.value)}
         placeholder="开始写你的作文... (Start writing your essay...)"
         className={`w-full h-96 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
-          isOverLimit ? 'border-red-300' : 'border-gray-300'
+          isOverLimit ? "border-red-300" : "border-gray-300"
         }`}
-        disabled={isSubmitting}
+        disabled={isSubmitting || isSavingDraft}
       />
 
       {/* Warning Messages */}
       {isOverLimit && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
           <p className="text-sm text-red-600">
-            ⚠️ 超过字数限制 {charCount - maxChars} 字 (Over limit by {charCount - maxChars} characters)
+            ⚠️ 超过字数限制 {charCount - maxChars} 字 (Over limit by{" "}
+            {charCount - maxChars} characters)
           </p>
         </div>
       )}
@@ -182,7 +193,8 @@ export default function WritingEditor({
       {charCount > 0 && isTooShort && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
           <p className="text-sm text-amber-600">
-            ℹ️ 需要至少 {minChars - charCount} 个字才能提交 (Need at least {minChars - charCount} more characters to submit)
+            ℹ️ 需要至少 {minChars - charCount} 个字才能提交 (Need at least{" "}
+            {minChars - charCount} more characters to submit)
           </p>
         </div>
       )}
@@ -191,30 +203,37 @@ export default function WritingEditor({
       <div className="flex gap-3">
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting || isTooShort || isOverLimit}
+          disabled={isSubmitting || isSavingDraft || isTooShort || isOverLimit}
           className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-            isSubmitting || isTooShort || isOverLimit
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+            isSubmitting || isSavingDraft || isTooShort || isOverLimit
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
           <FileText className="w-5 h-5" />
-          {isSubmitting ? 'Analyzing...' : 'Submit for Analysis (提交分析)'}
+          {isSubmitting ? "Analyzing..." : "Submit for Analysis"}
         </button>
 
         <button
-          onClick={handleClear}
-          disabled={isSubmitting}
-          className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+          onClick={handleSaveDraft}
+          disabled={
+            isSubmitting || isSavingDraft || (!title.trim() && !content.trim())
+          }
+          className={`flex-1 flex items-center gap-2 justify-center px-6 py-3 rounded-lg font-medium transition-colors ${
+            isSubmitting || isSavingDraft || (!title.trim() && !content.trim())
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-green-600 text-white hover:bg-green-700"
+          }`}
         >
-          Clear (清空)
+          <Save className="w-5 h-5" />
+          {isSavingDraft ? "Saving..." : "Save Draft"}
         </button>
       </div>
 
       {/* Auto-save indicator */}
       <div className="text-center">
         <p className="text-xs text-gray-500">
-          💾 Your essay is auto-saved as you type
+          💾 Auto-backup enabled (saved locally)
         </p>
       </div>
     </div>

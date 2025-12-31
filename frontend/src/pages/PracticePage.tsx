@@ -1,17 +1,21 @@
 // src/pages/PracticePage.tsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelThemeSelector from '@/components/practice/LevelThemeSelector';
 import WritingEditor from '@/components/practice/WritingEditor';
 import WritingTips from '@/components/practice/WritingTips';
 import { essaysApi } from '@/api/essays';
-import { useNavigate } from 'react-router-dom';
+import { draftsApi } from '@/api/drafts';
 
 export default function PracticePage() {
   const navigate = useNavigate();
+  
   const [step, setStep] = useState<'select' | 'write'>('select');
   const [selectedLevel, setSelectedLevel] = useState<number>(3);
   const [selectedTheme, setSelectedTheme] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
 
   const handleLevelThemeSelect = (level: number, theme: string) => {
     setSelectedLevel(level);
@@ -21,45 +25,89 @@ export default function PracticePage() {
 
   const handleBack = () => {
     setStep('select');
+    setCurrentDraftId(null);
   };
 
-  // In handleSubmit function, replace the alert with navigation:
+  const handleSaveDraft = async (data: { title: string; content: string }) => {
+    setIsSavingDraft(true);
 
-const handleSubmit = async (data: { title: string; content: string }) => {
-  setIsSubmitting(true);
+    try {
+      // TODO: Get real user ID from auth store
+      const userId = '03474b93-3871-46d4-a414-7a049266b3c1';
 
-  try {
-    const userId = '03474b93-3871-46d4-a414-7a049266b3c1';
+      if (currentDraftId) {
+        // Update existing draft
+        await draftsApi.update(currentDraftId, {
+          title: data.title,
+          content: data.content,
+          theme: selectedTheme,
+          hsk_level: selectedLevel,
+        });
+        alert('Draft updated! 💾');
+      } else {
+        // Create new draft
+        const draft = await draftsApi.create(userId, {
+          title: data.title,
+          content: data.content,
+          theme: selectedTheme,
+          hsk_level: selectedLevel,
+        });
+        setCurrentDraftId(draft.id);
+        alert('Draft saved! 💾');
+      }
 
-    console.log('Submitting essay...', {
-      ...data,
-      level: selectedLevel,
-      theme: selectedTheme,
-    });
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+      alert('Failed to save draft. Please try again.');
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
 
-    const analysis = await essaysApi.submit(userId, {
-      title: data.title,
-      content: data.content,
-      theme: selectedTheme,
-      target_hsk_level: selectedLevel,
-      language: 'en',
-    });
+  const handleSubmit = async (data: { title: string; content: string }) => {
+    setIsSubmitting(true);
 
-    console.log('Analysis received:', analysis);
+    try {
+      const userId = '03474b93-3871-46d4-a414-7a049266b3c1';
 
-    // Clear the draft
-    localStorage.removeItem('draft');
+      console.log('Submitting essay...', {
+        ...data,
+        level: selectedLevel,
+        theme: selectedTheme,
+      });
 
-    // Navigate to analysis results page ← Changed this!
-    navigate(`/analysis/${analysis.essay_id}`);
+      const analysis = await essaysApi.submit(userId, {
+        title: data.title,
+        content: data.content,
+        theme: selectedTheme,
+        target_hsk_level: selectedLevel,
+        language: 'en',
+      });
 
-  } catch (error) {
-    console.error('Failed to submit essay:', error);
-    alert('Failed to submit essay. Please try again.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      console.log('Analysis received:', analysis);
+
+      // Clear the draft backup
+      localStorage.removeItem('draft_backup');
+
+      // Delete the saved draft if it exists
+      if (currentDraftId) {
+        try {
+          await draftsApi.delete(currentDraftId);
+        } catch (error) {
+          console.error('Failed to delete draft:', error);
+        }
+      }
+
+      // Navigate to analysis results page
+      navigate(`/analysis/${analysis.essay_id}`);
+
+    } catch (error) {
+      console.error('Failed to submit essay:', error);
+      alert('Failed to submit essay. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -89,8 +137,10 @@ const handleSubmit = async (data: { title: string; content: string }) => {
                 level={selectedLevel}
                 theme={selectedTheme}
                 onSubmit={handleSubmit}
+                onSaveDraft={handleSaveDraft}
                 onBack={handleBack}
                 isSubmitting={isSubmitting}
+                isSavingDraft={isSavingDraft}
               />
             </div>
           </div>
