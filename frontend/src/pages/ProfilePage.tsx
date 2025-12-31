@@ -85,11 +85,8 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLoadDraft = (/*draft: Draft*/) => {
-    // TODO: Implement load draft functionality
-    // For now, just navigate to practice page
-    alert('Load draft feature coming soon! Will allow you to continue editing.');
-    navigate('/practice');
+  const handleLoadDraft = (draft: Draft) => {
+    navigate('/practice', { state: { draft } });
   };
 
   if (loading) {
@@ -172,7 +169,7 @@ export default function ProfilePage() {
             {drafts.map((draft) => (
               <div
                 key={draft.id}
-                onClick={() => handleLoadDraft(/*draft*/)}
+                onClick={() => handleLoadDraft(draft)}
                 className="border border-orange-200 bg-orange-50 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-100 transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between">

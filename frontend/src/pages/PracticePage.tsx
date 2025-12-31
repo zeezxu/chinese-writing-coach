@@ -1,14 +1,16 @@
 // src/pages/PracticePage.tsx
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import LevelThemeSelector from '@/components/practice/LevelThemeSelector';
 import WritingEditor from '@/components/practice/WritingEditor';
 import WritingTips from '@/components/practice/WritingTips';
 import { essaysApi } from '@/api/essays';
 import { draftsApi } from '@/api/drafts';
+import type { Draft } from '@/types';
 
 export default function PracticePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [step, setStep] = useState<'select' | 'write'>('select');
   const [selectedLevel, setSelectedLevel] = useState<number>(3);
@@ -16,16 +18,41 @@ export default function PracticePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
+  const [initialTitle, setInitialTitle] = useState('');
+  const [initialContent, setInitialContent] = useState('');
+
+  // Check if we're loading a draft
+  useEffect(() => {
+    const draftToLoad = location.state?.draft as Draft | undefined;
+    
+    if (draftToLoad) {
+      // Load draft data
+      setSelectedLevel(draftToLoad.hsk_level || 3);
+      setSelectedTheme(draftToLoad.theme || '');
+      setInitialTitle(draftToLoad.title || '');
+      setInitialContent(draftToLoad.content || '');
+      setCurrentDraftId(draftToLoad.id);
+      setStep('write');
+      
+      // Clear the location state so refresh doesn't reload
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleLevelThemeSelect = (level: number, theme: string) => {
     setSelectedLevel(level);
     setSelectedTheme(theme);
+    setInitialTitle('');
+    setInitialContent('');
+    setCurrentDraftId(null);
     setStep('write');
   };
 
   const handleBack = () => {
     setStep('select');
     setCurrentDraftId(null);
+    setInitialTitle('');
+    setInitialContent('');
   };
 
   const handleSaveDraft = async (data: { title: string; content: string }) => {
@@ -117,6 +144,8 @@ export default function PracticePage() {
         <p className="text-gray-600 mt-2">
           {step === 'select' 
             ? 'Choose your level and theme to get started! ✨'
+            : currentDraftId
+            ? 'Continue writing your draft! ✨'
             : 'Write your essay and get instant AI feedback! ✨'
           }
         </p>
@@ -141,6 +170,8 @@ export default function PracticePage() {
                 onBack={handleBack}
                 isSubmitting={isSubmitting}
                 isSavingDraft={isSavingDraft}
+                initialTitle={initialTitle}
+                initialContent={initialContent}
               />
             </div>
           </div>

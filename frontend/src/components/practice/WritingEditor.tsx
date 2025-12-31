@@ -57,6 +57,26 @@ export default function WritingEditor({
     return () => clearTimeout(timer);
   }, [title, content, level, theme]);
 
+  // Load from localStorage backup (only once on mount)
+  useEffect(() => {
+    if (!initialTitle && !initialContent) {
+      const saved = localStorage.getItem("draft_backup");
+      if (saved) {
+        try {
+          const draft = JSON.parse(saved);
+          // Only load if same level and theme
+          if (draft.level === level && draft.theme === theme) {
+            setTitle(draft.title || "");
+            setContent(draft.content || "");
+          }
+        } catch (error) {
+          console.error("Failed to load backup draft:", error);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty array = run only once on mount
+
   const handleSubmit = () => {
     if (!title.trim()) {
       alert("Please enter a title");
