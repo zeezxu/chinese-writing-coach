@@ -1,6 +1,7 @@
 // src/pages/PracticePage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useLanguage } from '@/i18n/LanguageContext';
 import LevelThemeSelector from '@/components/practice/LevelThemeSelector';
 import WritingEditor from '@/components/practice/WritingEditor';
 import WritingTips from '@/components/practice/WritingTips';
@@ -11,6 +12,7 @@ import type { Draft } from '@/types';
 export default function PracticePage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   
   const [step, setStep] = useState<'select' | 'write'>('select');
   const [selectedLevel, setSelectedLevel] = useState<number>(3);
@@ -108,7 +110,7 @@ export default function PracticePage() {
         content: data.content,
         theme: selectedTheme,
         target_hsk_level: selectedLevel,
-        language: 'en',
+        language: localStorage.getItem('language') || 'en',
       });
 
       console.log('Analysis received:', analysis);
@@ -140,13 +142,13 @@ export default function PracticePage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Practice Writing</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('practiceWriting')}</h1>
         <p className="text-gray-600 mt-2">
           {step === 'select' 
-            ? 'Choose your level and theme to get started! ✨'
+            ? t('chooseLevel')
             : currentDraftId
-            ? 'Continue writing your draft! ✨'
-            : 'Write your essay and get instant AI feedback! ✨'
+            ? t('continueDraft')
+            : t('continueWriting')
           }
         </p>
       </div>

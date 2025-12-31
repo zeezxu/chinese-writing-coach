@@ -101,6 +101,29 @@ interface TranslationStrings {
   delete: string;
   editingDraft: string;
 
+  // Five Elements
+  wood: string;
+  fire: string;
+  earth: string;
+  metal: string;
+  water: string;
+  level: string;
+  currentElement: string;
+  nextElement: string;
+  progress: string;
+  needEssays: string;
+  needScore: string;
+  essaysToNext: string;
+  avgScoreToNext: string;
+  elementJourney: string;
+  
+  // Element Messages
+  woodMessage: string;
+  fireMessage: string;
+  earthMessage: string;
+  metalMessage: string;
+  waterMessage: string;
+
   // Analysis Results
   analysisComplete: string;
   backToEssays: string;
@@ -136,6 +159,7 @@ interface TranslationStrings {
   settings: string;
   language: string;
   selectLanguage: string;
+  chooseAppLanguage: string;
   feedbackLanguage: string;
   feedbackLanguageDesc: string;
 
@@ -202,6 +226,29 @@ const enTranslations: TranslationStrings = {
   delete: 'Delete',
   editingDraft: 'Editing saved draft',
 
+  // Five Elements
+  wood: 'Wood',
+  fire: 'Fire',
+  earth: 'Earth',
+  metal: 'Metal',
+  water: 'Water',
+  level: 'Level',
+  currentElement: 'Current Element',
+  nextElement: 'To Next Element',
+  progress: 'Progress',
+  needEssays: 'essays needed',
+  needScore: 'average score needed',
+  essaysToNext: 'essays to reach',
+  avgScoreToNext: 'avg score to reach',
+  elementJourney: 'Element Journey',
+  
+  // Element Messages
+  woodMessage: 'Great start! Every journey begins with a single step!',
+  fireMessage: "You're on fire! Your passion is burning bright!",
+  earthMessage: 'Solid foundation! You\'re building something great!',
+  metalMessage: 'Sharp and precise! Your skills are refined!',
+  waterMessage: 'Flowing naturally! You\'ve achieved mastery!',
+
   // Analysis Results
   analysisComplete: 'Analysis Complete!',
   backToEssays: 'Back to My Essays',
@@ -237,6 +284,7 @@ const enTranslations: TranslationStrings = {
   settings: 'Settings',
   language: 'Language',
   selectLanguage: 'Select Language',
+  chooseAppLanguage: 'Choose the language for this app',
   feedbackLanguage: 'AI Feedback Language',
   feedbackLanguageDesc: 'Choose which language you want to receive AI feedback in',
 
@@ -303,6 +351,29 @@ const zhTranslations: TranslationStrings = {
   delete: '删除',
   editingDraft: '正在编辑已保存的草稿',
 
+  // Five Elements
+  wood: '木',
+  fire: '火',
+  earth: '土',
+  metal: '金',
+  water: '水',
+  level: '级别',
+  currentElement: '当前元素',
+  nextElement: '到下一个元素',
+  progress: '进度',
+  needEssays: '篇作文',
+  needScore: '平均分',
+  essaysToNext: '篇作文达到',
+  avgScoreToNext: '平均分达到',
+  elementJourney: '元素之旅',
+  
+  // Element Messages
+  woodMessage: '很好的开始！千里之行始于足下！',
+  fireMessage: '你正在燃烧！你的热情熊熊燃烧！',
+  earthMessage: '坚实的基础！你正在建造伟大的东西！',
+  metalMessage: '锋利而精准！你的技能已经精炼！',
+  waterMessage: '自然流动！你已达到精通！',
+
   // Analysis Results
   analysisComplete: '分析完成！',
   backToEssays: '返回我的作文',
@@ -338,6 +409,7 @@ const zhTranslations: TranslationStrings = {
   settings: '设置',
   language: '语言',
   selectLanguage: '选择语言',
+  chooseAppLanguage: '选择此应用的语言',
   feedbackLanguage: 'AI反馈语言',
   feedbackLanguageDesc: '选择你想要接收AI反馈的语言',
 
@@ -349,12 +421,262 @@ const zhTranslations: TranslationStrings = {
   unknown: '未知',
 };
 
+const esTranslations: TranslationStrings = {
+  // Navigation
+  practice: 'Practicar',
+  explore: 'Explorar',
+  profile: 'Perfil',
+
+  // Practice Page
+  practiceWriting: 'Practicar Escritura',
+  chooseLevel: '¡Elige tu nivel y tema para comenzar!',
+  continueWriting: '¡Escribe tu ensayo y obtén retroalimentación instantánea de IA!',
+  continueDraft: '¡Continúa escribiendo tu borrador!',
+  
+  // Level Selection
+  step1: 'Paso 1: Elige tu Nivel HSK Objetivo',
+  step2: 'Paso 2: Elige un Tema',
+  beginner: 'Principiante',
+  intermediate: 'Intermedio',
+  advanced: 'Avanzado',
+  customTheme: 'Ingresa tu Propio Tema',
+  startWriting: 'Comenzar a Escribir',
+
+  // Writing Editor
+  changeLevelTheme: 'Cambiar Nivel/Tema',
+  targetLevel: 'Nivel Objetivo',
+  theme: 'Tema',
+  essayTitle: 'Título del Ensayo',
+  titlePlaceholder: 'Ingresa el título de tu ensayo...',
+  writeEssay: 'Escribe tu ensayo',
+  contentPlaceholder: 'Comienza a escribir tu ensayo...',
+  minimum: 'Mínimo',
+  characters: 'caracteres',
+  overLimit: 'Excede el límite por',
+  needMore: 'Necesitas al menos',
+  moreCharacters: 'más caracteres para enviar',
+  submitAnalysis: 'Enviar para Análisis',
+  analyzing: 'Analizando...',
+  saveDraft: 'Guardar Borrador',
+  saving: 'Guardando...',
+  autoBackup: 'Copia de seguridad automática habilitada (guardado localmente)',
+
+  // Profile Page
+  hi: 'Hola',
+  dayStreak: '¡Racha de Días!',
+  keepWriting: '¡Sigue escribiendo para mantener tu racha!',
+  yourProgress: 'Tu Progreso',
+  totalEssays: 'Ensayos Totales',
+  avgScore: 'Puntuación Media',
+  bestScore: 'Mejor Puntuación',
+  drafts: 'Borradores',
+  recentEssays: 'Ensayos Recientes',
+  noEssays: '¡Aún no has escrito ningún ensayo!',
+  writeFirst: 'Escribe tu Primer Ensayo',
+  delete: 'Eliminar',
+  editingDraft: 'Editando borrador guardado',
+
+  // Five Elements
+  wood: 'Madera',
+  fire: 'Fuego',
+  earth: 'Tierra',
+  metal: 'Metal',
+  water: 'Agua',
+  level: 'Nivel',
+  currentElement: 'Elemento Actual',
+  nextElement: 'Al Próximo Elemento',
+  progress: 'Progreso',
+  needEssays: 'ensayos necesarios',
+  needScore: 'puntuación promedio necesaria',
+  essaysToNext: 'ensayos para alcanzar',
+  avgScoreToNext: 'puntuación promedio para alcanzar',
+  elementJourney: 'Viaje de Elementos',
+  
+  // Element Messages
+  woodMessage: '¡Gran comienzo! ¡Cada viaje comienza con un solo paso!',
+  fireMessage: '¡Estás en llamas! ¡Tu pasión arde intensamente!',
+  earthMessage: '¡Base sólida! ¡Estás construyendo algo grandioso!',
+  metalMessage: '¡Afilado y preciso! ¡Tus habilidades están refinadas!',
+  waterMessage: '¡Fluyendo naturalmente! ¡Has alcanzado la maestría!',
+
+  // Analysis Results
+  analysisComplete: '¡Análisis Completo!',
+  backToEssays: 'Volver a Mis Ensayos',
+  outstanding: '¡Trabajo excepcional!',
+  greatJob: '¡Gran trabajo!',
+  goodEffort: '¡Buen esfuerzo!',
+  keepPracticing: '¡Sigue practicando!',
+  canDoBetter: '¡Puedes hacerlo mejor!',
+  scoreBreakdown: 'Desglose de Puntuación',
+  vocabulary: 'Vocabulario',
+  sentenceQuality: 'Calidad de Oraciones',
+  structure: 'Estructura',
+  coherence: 'Coherencia',
+  recommendations: 'Recomendaciones',
+  hskDistribution: 'Distribución de Vocabulario HSK',
+  sentenceAnalysis: 'Análisis de Oraciones',
+  correction: 'Corrección',
+  writeAnother: 'Escribir Otro Ensayo',
+  viewMyEssays: 'Ver Mis Ensayos',
+
+  // Writing Tips
+  writingTips: 'Consejos de Escritura',
+  tip1Title: 'Usa vocabulario variado',
+  tip1Desc: 'Intenta usar palabras diferentes en lugar de repetir las mismas.',
+  tip2Title: 'Revisa tu gramática',
+  tip2Desc: 'Presta atención al orden de las palabras, partículas (的/得/地) y palabras de medida.',
+  tip3Title: 'Escribe claramente',
+  tip3Desc: 'Asegúrate de que cada oración tenga un significado claro y fluya naturalmente.',
+  tip4Title: 'Estructura tu ensayo',
+  tip4Desc: 'Usa párrafos: introducción, cuerpo y conclusión.',
+
+  // Settings
+  settings: 'Configuración',
+  language: 'Idioma',
+  selectLanguage: 'Seleccionar Idioma',
+  chooseAppLanguage: 'Elige el idioma para esta aplicación',
+  feedbackLanguage: 'Idioma de Retroalimentación IA',
+  feedbackLanguageDesc: 'Elige el idioma en el que deseas recibir retroalimentación de IA',
+
+  // Common
+  loading: 'Cargando...',
+  loadingProfile: 'Cargando tu perfil...',
+  loadingAnalysis: 'Cargando análisis...',
+  ago: 'hace',
+  unknown: 'Desconocido',
+};
+
+const frTranslations: TranslationStrings = {
+  // Navigation
+  practice: 'Pratiquer',
+  explore: 'Explorer',
+  profile: 'Profil',
+
+  // Practice Page
+  practiceWriting: 'Pratiquer l\'Écriture',
+  chooseLevel: 'Choisissez votre niveau et thème pour commencer !',
+  continueWriting: 'Écrivez votre essai et obtenez des commentaires IA instantanés !',
+  continueDraft: 'Continuez à écrire votre brouillon !',
+  
+  // Level Selection
+  step1: 'Étape 1 : Choisissez votre Niveau HSK Cible',
+  step2: 'Étape 2 : Choisissez un Thème',
+  beginner: 'Débutant',
+  intermediate: 'Intermédiaire',
+  advanced: 'Avancé',
+  customTheme: 'Entrez Votre Propre Thème',
+  startWriting: 'Commencer à Écrire',
+
+  // Writing Editor
+  changeLevelTheme: 'Changer Niveau/Thème',
+  targetLevel: 'Niveau Cible',
+  theme: 'Thème',
+  essayTitle: 'Titre de l\'Essai',
+  titlePlaceholder: 'Entrez le titre de votre essai...',
+  writeEssay: 'Écrivez votre essai',
+  contentPlaceholder: 'Commencez à écrire votre essai...',
+  minimum: 'Minimum',
+  characters: 'caractères',
+  overLimit: 'Dépasse la limite de',
+  needMore: 'Besoin d\'au moins',
+  moreCharacters: 'caractères supplémentaires pour soumettre',
+  submitAnalysis: 'Soumettre pour Analyse',
+  analyzing: 'Analyse en cours...',
+  saveDraft: 'Enregistrer le Brouillon',
+  saving: 'Enregistrement...',
+  autoBackup: 'Sauvegarde automatique activée (enregistré localement)',
+
+  // Profile Page
+  hi: 'Bonjour',
+  dayStreak: 'Série de Jours !',
+  keepWriting: 'Continuez à écrire pour maintenir votre série !',
+  yourProgress: 'Votre Progrès',
+  totalEssays: 'Total des Essais',
+  avgScore: 'Score Moyen',
+  bestScore: 'Meilleur Score',
+  drafts: 'Brouillons',
+  recentEssays: 'Essais Récents',
+  noEssays: 'Vous n\'avez pas encore écrit d\'essais !',
+  writeFirst: 'Écrire Votre Premier Essai',
+  delete: 'Supprimer',
+  editingDraft: 'Modification du brouillon enregistré',
+
+  // Five Elements
+  wood: 'Bois',
+  fire: 'Feu',
+  earth: 'Terre',
+  metal: 'Métal',
+  water: 'Eau',
+  level: 'Niveau',
+  currentElement: 'Élément Actuel',
+  nextElement: 'Vers le Prochain Élément',
+  progress: 'Progrès',
+  needEssays: 'essais nécessaires',
+  needScore: 'score moyen nécessaire',
+  essaysToNext: 'essais pour atteindre',
+  avgScoreToNext: 'score moyen pour atteindre',
+  elementJourney: 'Voyage des Éléments',
+  
+  // Element Messages
+  woodMessage: 'Excellent début ! Chaque voyage commence par un seul pas !',
+  fireMessage: 'Vous êtes en feu ! Votre passion brûle intensément !',
+  earthMessage: 'Base solide ! Vous construisez quelque chose de grand !',
+  metalMessage: 'Tranchant et précis ! Vos compétences sont raffinées !',
+  waterMessage: 'Coulant naturellement ! Vous avez atteint la maîtrise !',
+
+  // Analysis Results
+  analysisComplete: 'Analyse Terminée !',
+  backToEssays: 'Retour à Mes Essais',
+  outstanding: 'Excellent travail !',
+  greatJob: 'Très bon travail !',
+  goodEffort: 'Bon effort !',
+  keepPracticing: 'Continuez à pratiquer !',
+  canDoBetter: 'Vous pouvez faire mieux !',
+  scoreBreakdown: 'Répartition des Scores',
+  vocabulary: 'Vocabulaire',
+  sentenceQuality: 'Qualité des Phrases',
+  structure: 'Structure',
+  coherence: 'Cohérence',
+  recommendations: 'Recommandations',
+  hskDistribution: 'Distribution du Vocabulaire HSK',
+  sentenceAnalysis: 'Analyse des Phrases',
+  correction: 'Correction',
+  writeAnother: 'Écrire un Autre Essai',
+  viewMyEssays: 'Voir Mes Essais',
+
+  // Writing Tips
+  writingTips: 'Conseils d\'Écriture',
+  tip1Title: 'Utilisez un vocabulaire varié',
+  tip1Desc: 'Essayez d\'utiliser des mots différents au lieu de répéter les mêmes.',
+  tip2Title: 'Vérifiez votre grammaire',
+  tip2Desc: 'Faites attention à l\'ordre des mots, aux particules (的/得/地) et aux mots de mesure.',
+  tip3Title: 'Écrivez clairement',
+  tip3Desc: 'Assurez-vous que chaque phrase a un sens clair et s\'enchaîne naturellement.',
+  tip4Title: 'Structurez votre essai',
+  tip4Desc: 'Utilisez des paragraphes : introduction, corps et conclusion.',
+
+  // Settings
+  settings: 'Paramètres',
+  language: 'Langue',
+  selectLanguage: 'Sélectionner la Langue',
+  chooseAppLanguage: 'Choisissez la langue pour cette application',
+  feedbackLanguage: 'Langue de Retour IA',
+  feedbackLanguageDesc: 'Choisissez la langue dans laquelle vous souhaitez recevoir les commentaires IA',
+
+  // Common
+  loading: 'Chargement...',
+  loadingProfile: 'Chargement de votre profil...',
+  loadingAnalysis: 'Chargement de l\'analyse...',
+  ago: 'il y a',
+  unknown: 'Inconnu',
+};
+
 export const translations: Record<Language, TranslationStrings> = {
   en: enTranslations,
   zh: zhTranslations,
+  es: esTranslations,
+  fr: frTranslations,
   // Use English as fallback for other languages
-  es: enTranslations,
-  fr: enTranslations,
   de: enTranslations,
   ja: enTranslations,
   ko: enTranslations,

@@ -1,207 +1,386 @@
 // src/components/practice/LevelThemeSelector.tsx
 import { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface LevelThemeSelectorProps {
   onSelect: (level: number, theme: string) => void;
 }
 
-// Themes organized by HSK level
-const THEMES_BY_LEVEL: Record<number, string[]> = {
-  1: [
-    'Self Introduction (自我介绍)',
-    'My Family (我的家人)',
-    'Daily Routine (日常生活)',
-    'My Hobbies (我的爱好)',
-    'My School (我的学校)',
-  ],
-  2: [
-    'My Best Friend (我最好的朋友)',
-    'Weekend Activities (周末活动)',
-    'My Favorite Food (我喜欢的食物)',
-    'Shopping Experience (购物经历)',
-    'My Hometown (我的家乡)',
-  ],
-  3: [
-    'A Memorable Trip (难忘的旅行)',
-    'My Learning Experience (我的学习经历)',
-    'Healthy Lifestyle (健康的生活方式)',
-    'Environmental Protection (环境保护)',
-    'Future Plans (未来的计划)',
-  ],
-  4: [
-    'Cultural Differences (文化差异)',
-    'Technology and Life (科技与生活)',
-    'Education System (教育体系)',
-    'Work and Career (工作与职业)',
-    'Social Media Impact (社交媒体的影响)',
-  ],
-  5: [
-    'Globalization (全球化)',
-    'Traditional vs Modern (传统与现代)',
-    'Economic Development (经济发展)',
-    'Social Responsibility (社会责任)',
-    'Innovation and Change (创新与变革)',
-  ],
-  6: [
-    'Philosophy of Life (人生哲学)',
-    'Historical Perspectives (历史观点)',
-    'Art and Culture (艺术与文化)',
-    'Ethical Dilemmas (道德困境)',
-    'Future of Humanity (人类的未来)',
-  ],
+// Theme translations
+const themeTranslations: Record<string, Record<string, string>> = {
+  // HSK 1 themes
+  'self_introduction': {
+    en: 'Self Introduction',
+    zh: '自我介绍',
+    es: 'Presentación Personal',
+    fr: 'Présentation Personnelle',
+  },
+  'my_family': {
+    en: 'My Family',
+    zh: '我的家人',
+    es: 'Mi Familia',
+    fr: 'Ma Famille',
+  },
+  'daily_routine': {
+    en: 'Daily Routine',
+    zh: '日常生活',
+    es: 'Rutina Diaria',
+    fr: 'Routine Quotidienne',
+  },
+  'my_hobbies': {
+    en: 'My Hobbies',
+    zh: '我的爱好',
+    es: 'Mis Pasatiempos',
+    fr: 'Mes Loisirs',
+  },
+  'my_school': {
+    en: 'My School',
+    zh: '我的学校',
+    es: 'Mi Escuela',
+    fr: 'Mon École',
+  },
+
+  // HSK 2 themes
+  'my_best_friend': {
+    en: 'My Best Friend',
+    zh: '我的好朋友',
+    es: 'Mi Mejor Amigo',
+    fr: 'Mon Meilleur Ami',
+  },
+  'weekend_activities': {
+    en: 'Weekend Activities',
+    zh: '周末活动',
+    es: 'Actividades del Fin de Semana',
+    fr: 'Activités du Week-end',
+  },
+  'my_favorite_food': {
+    en: 'My Favorite Food',
+    zh: '我喜欢的食物',
+    es: 'Mi Comida Favorita',
+    fr: 'Ma Nourriture Préférée',
+  },
+  'shopping': {
+    en: 'Shopping',
+    zh: '购物',
+    es: 'Compras',
+    fr: 'Shopping',
+  },
+  'my_hometown': {
+    en: 'My Hometown',
+    zh: '我的家乡',
+    es: 'Mi Ciudad Natal',
+    fr: 'Ma Ville Natale',
+  },
+
+  // HSK 3 themes
+  'memorable_trip': {
+    en: 'Memorable Trip',
+    zh: '难忘的旅行',
+    es: 'Viaje Memorable',
+    fr: 'Voyage Mémorable',
+  },
+  'learning_experience': {
+    en: 'Learning Experience',
+    zh: '学习经历',
+    es: 'Experiencia de Aprendizaje',
+    fr: 'Expérience d\'Apprentissage',
+  },
+  'healthy_lifestyle': {
+    en: 'Healthy Lifestyle',
+    zh: '健康生活',
+    es: 'Estilo de Vida Saludable',
+    fr: 'Mode de Vie Sain',
+  },
+  'environment': {
+    en: 'Environment',
+    zh: '环境',
+    es: 'Medio Ambiente',
+    fr: 'Environnement',
+  },
+  'future_plans': {
+    en: 'Future Plans',
+    zh: '未来计划',
+    es: 'Planes Futuros',
+    fr: 'Plans Futurs',
+  },
+
+  // HSK 4 themes
+  'cultural_differences': {
+    en: 'Cultural Differences',
+    zh: '文化差异',
+    es: 'Diferencias Culturales',
+    fr: 'Différences Culturelles',
+  },
+  'technology': {
+    en: 'Technology',
+    zh: '科技',
+    es: 'Tecnología',
+    fr: 'Technologie',
+  },
+  'education_system': {
+    en: 'Education System',
+    zh: '教育体系',
+    es: 'Sistema Educativo',
+    fr: 'Système Éducatif',
+  },
+  'work_and_career': {
+    en: 'Work and Career',
+    zh: '工作和职业',
+    es: 'Trabajo y Carrera',
+    fr: 'Travail et Carrière',
+  },
+  'social_media': {
+    en: 'Social Media',
+    zh: '社交媒体',
+    es: 'Redes Sociales',
+    fr: 'Médias Sociaux',
+  },
+
+  // HSK 5 themes
+  'globalization': {
+    en: 'Globalization',
+    zh: '全球化',
+    es: 'Globalización',
+    fr: 'Mondialisation',
+  },
+  'traditional_vs_modern': {
+    en: 'Traditional vs Modern',
+    zh: '传统与现代',
+    es: 'Tradicional vs Moderno',
+    fr: 'Traditionnel vs Moderne',
+  },
+  'economic_development': {
+    en: 'Economic Development',
+    zh: '经济发展',
+    es: 'Desarrollo Económico',
+    fr: 'Développement Économique',
+  },
+  'social_responsibility': {
+    en: 'Social Responsibility',
+    zh: '社会责任',
+    es: 'Responsabilidad Social',
+    fr: 'Responsabilité Sociale',
+  },
+
+  // HSK 6 themes
+  'philosophy_of_life': {
+    en: 'Philosophy of Life',
+    zh: '人生哲学',
+    es: 'Filosofía de la Vida',
+    fr: 'Philosophie de la Vie',
+  },
+  'historical_perspectives': {
+    en: 'Historical Perspectives',
+    zh: '历史视角',
+    es: 'Perspectivas Históricas',
+    fr: 'Perspectives Historiques',
+  },
+  'art_and_culture': {
+    en: 'Art and Culture',
+    zh: '艺术与文化',
+    es: 'Arte y Cultura',
+    fr: 'Art et Culture',
+  },
+  'ethical_dilemmas': {
+    en: 'Ethical Dilemmas',
+    zh: '道德困境',
+    es: 'Dilemas Éticos',
+    fr: 'Dilemmes Éthiques',
+  },
+  'future_of_humanity': {
+    en: 'Future of Humanity',
+    zh: '人类的未来',
+    es: 'Futuro de la Humanidad',
+    fr: 'Avenir de l\'Humanité',
+  },
 };
 
 export default function LevelThemeSelector({ onSelect }: LevelThemeSelectorProps) {
+  const { t, language } = useLanguage();
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<string>('');
-  const [customTheme, setCustomTheme] = useState('');
-  const [showCustom, setShowCustom] = useState(false);
+  const [customTheme, setCustomTheme] = useState<string>('');
+
+  // Get translated theme
+  const getTheme = (themeKey: string) => {
+    const translations = themeTranslations[themeKey];
+    if (!translations) return themeKey;
+    
+    // Return translation for current language, fallback to English
+    return translations[language] || translations['en'] || themeKey;
+  };
+
+  const levels = [
+    { level: 1, label: 'HSK 1', difficulty: t('beginner'), themes: [
+      'self_introduction',
+      'my_family',
+      'daily_routine',
+      'my_hobbies',
+      'my_school',
+    ]},
+    { level: 2, label: 'HSK 2', difficulty: t('beginner'), themes: [
+      'my_best_friend',
+      'weekend_activities',
+      'my_favorite_food',
+      'shopping',
+      'my_hometown',
+    ]},
+    { level: 3, label: 'HSK 3', difficulty: t('intermediate'), themes: [
+      'memorable_trip',
+      'learning_experience',
+      'healthy_lifestyle',
+      'environment',
+      'future_plans',
+    ]},
+    { level: 4, label: 'HSK 4', difficulty: t('intermediate'), themes: [
+      'cultural_differences',
+      'technology',
+      'education_system',
+      'work_and_career',
+      'social_media',
+    ]},
+    { level: 5, label: 'HSK 5', difficulty: t('advanced'), themes: [
+      'globalization',
+      'traditional_vs_modern',
+      'economic_development',
+      'social_responsibility',
+    ]},
+    { level: 6, label: 'HSK 6', difficulty: t('advanced'), themes: [
+      'philosophy_of_life',
+      'historical_perspectives',
+      'art_and_culture',
+      'ethical_dilemmas',
+      'future_of_humanity',
+    ]},
+  ];
+
+  const selectedLevelData = levels.find(l => l.level === selectedLevel);
 
   const handleLevelSelect = (level: number) => {
     setSelectedLevel(level);
     setSelectedTheme('');
     setCustomTheme('');
-    setShowCustom(false);
   };
 
-  const handleThemeSelect = (theme: string) => {
-    setSelectedTheme(theme);
-    setShowCustom(false);
+  const handleThemeSelect = (themeKey: string) => {
+    // Store the translated theme text
+    setSelectedTheme(getTheme(themeKey));
     setCustomTheme('');
   };
 
-  const handleCustomTheme = () => {
-    setShowCustom(true);
+  const handleCustomThemeChange = (value: string) => {
+    setCustomTheme(value);
     setSelectedTheme('');
   };
 
-  const handleContinue = () => {
-    if (!selectedLevel) {
-      alert('Please select an HSK level');
-      return;
+  const handleStartWriting = () => {
+    if (selectedLevel && (selectedTheme || customTheme.trim())) {
+      onSelect(selectedLevel, customTheme.trim() || selectedTheme);
     }
-
-    const finalTheme = showCustom ? customTheme : selectedTheme;
-    if (!finalTheme.trim()) {
-      alert('Please select or enter a theme');
-      return;
-    }
-
-    onSelect(selectedLevel, finalTheme);
   };
+
+  const isReadyToStart = selectedLevel && (selectedTheme || customTheme.trim());
 
   return (
     <div className="space-y-6">
-      {/* Step 1: Select HSK Level */}
+      {/* Step 1: Level Selection */}
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">
-          Step 1: Choose Your Target HSK Level
+          {t('step1')}
         </h2>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {[1, 2, 3, 4, 5, 6].map((level) => (
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {levels.map((levelData) => (
             <button
-              key={level}
-              onClick={() => handleLevelSelect(level)}
-              className={`p-4 rounded-lg border-2 transition-all ${
-                selectedLevel === level
+              key={levelData.level}
+              onClick={() => handleLevelSelect(levelData.level)}
+              className={`p-4 rounded-lg border-2 transition-all text-left ${
+                selectedLevel === levelData.level
                   ? 'border-blue-500 bg-blue-50 shadow-md'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
               }`}
             >
-              <div className="text-center">
-                <div className={`text-3xl font-bold ${
-                  selectedLevel === level ? 'text-blue-600' : 'text-gray-700'
-                }`}>
-                  HSK {level}
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className={`text-lg font-bold ${
+                    selectedLevel === levelData.level ? 'text-blue-700' : 'text-gray-900'
+                  }`}>
+                    {levelData.label}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {levelData.difficulty}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {level <= 2 ? 'Beginner' : level <= 4 ? 'Intermediate' : 'Advanced'}
-                </div>
+                {selectedLevel === levelData.level && (
+                  <Check className="w-5 h-5 text-blue-600" />
+                )}
               </div>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Step 2: Select Theme (only show if level is selected) */}
+      {/* Step 2: Theme Selection */}
       {selectedLevel && (
         <div className="animate-fadeIn">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Step 2: Choose a Theme
+            {t('step2')}
           </h2>
 
           <div className="space-y-3">
             {/* Suggested Themes */}
-            {THEMES_BY_LEVEL[selectedLevel].map((theme) => (
-              <button
-                key={theme}
-                onClick={() => handleThemeSelect(theme)}
-                className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                  selectedTheme === theme
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`font-medium ${
-                    selectedTheme === theme ? 'text-blue-700' : 'text-gray-700'
-                  }`}>
-                    {theme}
-                  </span>
-                  {selectedTheme === theme && (
-                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                      <ChevronRight className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
-
-            {/* Custom Theme Option */}
-            <button
-              onClick={handleCustomTheme}
-              className={`w-full text-left p-4 rounded-lg border-2 border-dashed transition-all ${
-                showCustom
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-              }`}
-            >
-              <span className={`font-medium ${
-                showCustom ? 'text-blue-700' : 'text-gray-600'
-              }`}>
-                ✏️ Enter Your Own Theme (自定义主题)
-              </span>
-            </button>
+            {selectedLevelData?.themes.map((themeKey) => {
+              const themeText = getTheme(themeKey);
+              return (
+                <button
+                  key={themeKey}
+                  onClick={() => handleThemeSelect(themeKey)}
+                  className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                    selectedTheme === themeText
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`font-medium ${
+                      selectedTheme === themeText ? 'text-blue-700' : 'text-gray-900'
+                    }`}>
+                      {themeText}
+                    </span>
+                    {selectedTheme === themeText && (
+                      <Check className="w-5 h-5 text-blue-600" />
+                    )}
+                  </div>
+                </button>
+              );
+            })}
 
             {/* Custom Theme Input */}
-            {showCustom && (
-              <div className="pl-4 animate-fadeIn">
-                <input
-                  type="text"
-                  value={customTheme}
-                  onChange={(e) => setCustomTheme(e.target.value)}
-                  placeholder="Enter your theme in Chinese or English..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autoFocus
-                />
-              </div>
-            )}
+            <div className="relative">
+              <input
+                type="text"
+                value={customTheme}
+                onChange={(e) => handleCustomThemeChange(e.target.value)}
+                placeholder={t('customTheme')}
+                className={`w-full p-4 rounded-lg border-2 transition-all ${
+                  customTheme.trim()
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              />
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Continue Button */}
-      {selectedLevel && (selectedTheme || customTheme) && (
-        <div className="animate-fadeIn">
-          <button
-            onClick={handleContinue}
-            className="w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-          >
-            Start Writing
-            <ChevronRight className="w-5 h-5" />
-          </button>
+          {/* Start Writing Button */}
+          {isReadyToStart && (
+            <button
+              onClick={handleStartWriting}
+              className="mt-6 w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg animate-fadeIn"
+            >
+              {t('startWriting')} →
+            </button>
+          )}
         </div>
       )}
     </div>

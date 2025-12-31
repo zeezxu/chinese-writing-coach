@@ -1,102 +1,197 @@
 // src/components/profile/ElementProgress.tsx
-import { calculateProgress, ELEMENTS, getRandomMessage } from '@/utils/fiveElements';
-import ElementBadge from '@/components/shared/ElementBadge';
+import ElementBadge from "@/components/shared/ElementBadge";
+import { useLanguage } from "@/i18n/LanguageContext";
+import {
+  calculateElement,
+  calculateProgress,
+  type Element,
+} from "@/utils/fiveElements";
 
 interface ElementProgressProps {
   totalEssays: number;
   averageScore: number;
 }
 
-export default function ElementProgress({ totalEssays, averageScore }: ElementProgressProps) {
+export default function ElementProgress({
+  totalEssays,
+  averageScore,
+}: ElementProgressProps) {
+  const { t } = useLanguage();
+  const element = calculateElement(totalEssays, averageScore);
   const progress = calculateProgress(totalEssays, averageScore);
-  const message = getRandomMessage(progress.current.name);
+
+  // Get element name translation
+  const getElementName = (elementType: Element) => {
+    const elementMap: Record<Element, string> = {
+      wood: t("wood"),
+      fire: t("fire"),
+      earth: t("earth"),
+      metal: t("metal"),
+      water: t("water"),
+    };
+    return elementMap[elementType];
+  };
+
+  // Get element message translation
+  const getElementMessage = (elementType: Element) => {
+    const messageMap: Record<Element, string> = {
+      wood: t("woodMessage"),
+      fire: t("fireMessage"),
+      earth: t("earthMessage"),
+      metal: t("metalMessage"),
+      water: t("waterMessage"),
+    };
+    return messageMap[elementType];
+  };
+
+  // Get element color
+  const getElementColor = (elementType: Element) => {
+    const colorMap: Record<Element, string> = {
+      wood: "#22c55e",
+      fire: "#f97316",
+      earth: "#eab308",
+      metal: "#71717a",
+      water: "#3b82f6",
+    };
+    return colorMap[elementType];
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      {/* Current Element Badge */}
-      <ElementBadge 
-        element={progress.current.name} 
-        level={progress.current.level}
-        size="lg"
-      />
+    <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg border border-green-200 p-6">
+      {/* Element Badge - Centered */}
+      <div className="text-center mb-4">
+        <h2 className="text-sm font-medium text-gray-600 mb-3">
+          {t("currentElement")}
+        </h2>
+        <div className="flex flex-col items-center gap-2">
+          <ElementBadge
+            element={element.name}
+            level={element.level}
+            size="lg"
+          />
+        </div>
+      </div>
 
-      {/* Encouraging Message */}
-      <div className="mt-4 text-center">
-        <p className="text-lg font-medium text-gray-700 italic">
-          "{message}"
+      {/* Encouraging Message - Centered */}
+      <div className="bg-white/50 rounded-lg p-4 mb-4 text-center">
+        <p className="text-sm text-gray-700 font-medium">
+          {getElementMessage(element.name)}
         </p>
       </div>
 
       {/* Progress Bar */}
       {progress.next && (
-        <div className="mt-6">
+        <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Progress to {ELEMENTS[progress.next].nameChinese} {ELEMENTS[progress.next].title}</span>
-            <span className="text-sm font-medium" style={{ color: progress.current.color }}>
+            <span className="text-sm font-medium text-gray-700">
+              {t("progress")} {t("nextElement")}:{" "}
+              {getElementName(progress.next)}
+            </span>
+            <span className="text-sm font-bold text-blue-600">
               {Math.round(progress.progressPercent)}%
             </span>
           </div>
-          
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div 
-              className="h-full rounded-full transition-all duration-500"
-              style={{ 
+
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+            <div
+              className="h-3 rounded-full transition-all"
+              style={{
                 width: `${progress.progressPercent}%`,
-                background: `linear-gradient(to right, ${progress.current.color}, ${ELEMENTS[progress.next].color})`
+                background: `linear-gradient(to right, ${getElementColor(
+                  element.name
+                )}, ${getElementColor(progress.next)})`,
               }}
             />
           </div>
 
-          <div className="mt-2 text-center text-sm text-gray-600">
+          {/* Requirements */}
+          <div
+            className={`grid gap-3 text-xs ${
+              progress.essaysNeeded > 0 && progress.scoreNeeded > 0
+                ? "grid-cols-2"
+                : "grid-cols-1 max-w-xs mx-auto"
+            }`}
+          >
             {progress.essaysNeeded > 0 && (
-              <span>{progress.essaysNeeded} more essay{progress.essaysNeeded > 1 ? 's' : ''}</span>
+              <div className="bg-white/70 rounded p-3 text-center">
+                <div className="text-gray-600">
+                  {progress.essaysNeeded} {t("essaysToNext")}
+                </div>
+                <div className="font-semibold text-gray-900">
+                  {getElementName(progress.next)}
+                </div>
+              </div>
             )}
-            {progress.essaysNeeded > 0 && progress.scoreNeeded > 0 && <span> and </span>}
             {progress.scoreNeeded > 0 && (
-              <span>{progress.scoreNeeded} more points in average score</span>
-            )}
-            {progress.essaysNeeded === 0 && progress.scoreNeeded === 0 && (
-              <span>Almost there! Keep up the great work!</span>
+              <div className="bg-white/70 rounded p-3 text-center">
+                <div className="text-gray-600">
+                  {progress.scoreNeeded}+ {t("avgScoreToNext")}
+                </div>
+                <div className="font-semibold text-gray-900">
+                  {getElementName(progress.next)}
+                </div>
+              </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Element Journey */}
-      <div className="mt-6 flex justify-center items-center space-x-2">
-        {(['wood', 'fire', 'earth', 'metal', 'water'] as const).map((elem, index) => {
-          const elemInfo = ELEMENTS[elem];
-          const isCurrent = elem === progress.current.name;
-          const isPast = index < (['wood', 'fire', 'earth', 'metal', 'water'] as const).indexOf(progress.current.name);
-          
-          return (
-            <div key={elem} className="flex items-center">
-              <div 
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
-                  isCurrent 
-                    ? 'border-current scale-110' 
-                    : isPast 
-                    ? 'border-gray-400' 
-                    : 'border-gray-300'
-                }`}
-                style={{ 
-                  borderColor: isCurrent || isPast ? elemInfo.color : undefined,
-                  backgroundColor: isPast ? `${elemInfo.color}20` : undefined
-                }}
-              >
-                <span className={`text-xl ${isPast || isCurrent ? 'opacity-100' : 'opacity-30'}`}>
-                  {elemInfo.emoji}
-                </span>
-              </div>
-              {index < 4 && (
-                <div 
-                  className={`w-4 h-0.5 ${isPast ? 'bg-gray-400' : 'bg-gray-300'}`}
-                  style={{ backgroundColor: isPast ? elemInfo.color : undefined }}
-                />
-              )}
-            </div>
-          );
-        })}
+      {/* Element Journey - Centered */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="text-xs text-gray-600 mb-2 text-center">
+          {t("elementJourney")}
+        </div>
+        <div className="flex items-center justify-center gap-2 text-2xl">
+          <span
+            className={
+              element.name === "wood"
+                ? "scale-125 transition-transform"
+                : "opacity-40"
+            }
+          >
+            🌳
+          </span>
+          <span className="text-gray-300">→</span>
+          <span
+            className={
+              element.name === "fire"
+                ? "scale-125 transition-transform"
+                : "opacity-40"
+            }
+          >
+            🔥
+          </span>
+          <span className="text-gray-300">→</span>
+          <span
+            className={
+              element.name === "earth"
+                ? "scale-125 transition-transform"
+                : "opacity-40"
+            }
+          >
+            ⛰️
+          </span>
+          <span className="text-gray-300">→</span>
+          <span
+            className={
+              element.name === "metal"
+                ? "scale-125 transition-transform"
+                : "opacity-40"
+            }
+          >
+            ✨
+          </span>
+          <span className="text-gray-300">→</span>
+          <span
+            className={
+              element.name === "water"
+                ? "scale-125 transition-transform"
+                : "opacity-40"
+            }
+          >
+            🌊
+          </span>
+        </div>
       </div>
     </div>
   );

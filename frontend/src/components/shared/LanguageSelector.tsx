@@ -18,7 +18,7 @@ export default function LanguageSelector() {
         {t('language')}
       </h2>
       <p className="text-sm text-gray-600 mb-4">
-        {t('feedbackLanguageDesc')}
+        {t('chooseAppLanguage')}
       </p>
 
       {/* Dropdown */}
@@ -42,14 +42,6 @@ export default function LanguageSelector() {
           </svg>
         </div>
       </div>
-
-      {/* Note */}
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <p className="text-sm text-blue-800">
-          💡 <strong>Note:</strong> This changes the language for AI feedback. The UI currently supports English and Chinese.
-        </p>
-      </div>
     </div>
   );
 }
-

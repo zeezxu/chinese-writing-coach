@@ -1,6 +1,7 @@
 // src/components/practice/WritingEditor.tsx
 import { useState, useEffect } from "react";
 import { FileText, ArrowLeft, Save } from "lucide-react";
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface WritingEditorProps {
   level: number;
@@ -30,6 +31,7 @@ export default function WritingEditor({
   initialTitle = "",
   initialContent = "",
 }: WritingEditorProps) {
+  const { t } = useLanguage(); // ← Added this
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
 
@@ -64,7 +66,6 @@ export default function WritingEditor({
       if (saved) {
         try {
           const draft = JSON.parse(saved);
-          // Only load if same level and theme
           if (draft.level === level && draft.theme === theme) {
             setTitle(draft.title || "");
             setContent(draft.content || "");
@@ -75,7 +76,7 @@ export default function WritingEditor({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty array = run only once on mount
+  }, []);
 
   const handleSubmit = () => {
     if (!title.trim()) {
@@ -115,11 +116,11 @@ export default function WritingEditor({
           disabled={isSubmitting || isSavingDraft}
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Change Level/Theme</span>
+          <span>{t('changeLevelTheme')}</span>
         </button>
 
         <div className="text-right">
-          <div className="text-sm text-gray-600">Target Level</div>
+          <div className="text-sm text-gray-600">{t('targetLevel')}</div>
           <div className="font-bold text-blue-600">HSK {level}</div>
         </div>
       </div>
@@ -127,7 +128,7 @@ export default function WritingEditor({
       {/* Theme Display */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-blue-700">Theme:</span>
+          <span className="text-sm font-medium text-blue-700">{t('theme')}:</span>
           <span className="text-blue-900 font-semibold">{theme}</span>
         </div>
       </div>
@@ -138,14 +139,14 @@ export default function WritingEditor({
           htmlFor="title"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
-          Essay Title (标题)
+          {t('essayTitle')}
         </label>
         <input
           id="title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter your essay title..."
+          placeholder={t('titlePlaceholder')}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           disabled={isSubmitting || isSavingDraft}
         />
@@ -154,7 +155,7 @@ export default function WritingEditor({
       {/* Character Counter */}
       <div className="flex justify-between items-center">
         <label htmlFor="content" className="text-sm font-medium text-gray-700">
-          Write your essay (写作文)
+          {t('writeEssay')}
         </label>
 
         <div className="flex items-center gap-3">
@@ -185,7 +186,7 @@ export default function WritingEditor({
 
       {/* Minimum requirement hint */}
       <div className="text-xs text-gray-500 text-right -mt-2">
-        Minimum: {minChars} characters
+        {t('minimum')}: {minChars} {t('characters')}
       </div>
 
       {/* Text Area */}
@@ -193,7 +194,7 @@ export default function WritingEditor({
         id="content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="开始写你的作文... (Start writing your essay...)"
+        placeholder={t('contentPlaceholder')}
         className={`w-full h-96 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
           isOverLimit ? "border-red-300" : "border-gray-300"
         }`}
@@ -204,8 +205,7 @@ export default function WritingEditor({
       {isOverLimit && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
           <p className="text-sm text-red-600">
-            ⚠️ 超过字数限制 {charCount - maxChars} 字 (Over limit by{" "}
-            {charCount - maxChars} characters)
+            ⚠️ {t('overLimit')} {charCount - maxChars} 字
           </p>
         </div>
       )}
@@ -213,8 +213,7 @@ export default function WritingEditor({
       {charCount > 0 && isTooShort && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
           <p className="text-sm text-amber-600">
-            ℹ️ 需要至少 {minChars - charCount} 个字才能提交 (Need at least{" "}
-            {minChars - charCount} more characters to submit)
+            ℹ️ {t('needMore')} {minChars - charCount} {t('moreCharacters')}
           </p>
         </div>
       )}
@@ -231,7 +230,7 @@ export default function WritingEditor({
           }`}
         >
           <FileText className="w-5 h-5" />
-          {isSubmitting ? "Analyzing..." : "Submit for Analysis"}
+          {isSubmitting ? t('analyzing') : t('submitAnalysis')}
         </button>
 
         <button
@@ -246,14 +245,14 @@ export default function WritingEditor({
           }`}
         >
           <Save className="w-5 h-5" />
-          {isSavingDraft ? "Saving..." : "Save Draft"}
+          {isSavingDraft ? t('saving') : t('saveDraft')}
         </button>
       </div>
 
       {/* Auto-save indicator */}
       <div className="text-center">
         <p className="text-xs text-gray-500">
-          💾 Auto-backup enabled (saved locally)
+          💾 {t('autoBackup')}
         </p>
       </div>
     </div>

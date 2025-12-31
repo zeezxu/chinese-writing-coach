@@ -1,5 +1,6 @@
 // src/components/shared/ElementBadge.tsx
-import { ELEMENTS, type Element } from '@/utils/fiveElements';
+import { type Element } from '@/utils/fiveElements';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface ElementBadgeProps {
   element: Element;
@@ -14,7 +15,28 @@ export default function ElementBadge({
   size = 'md',
   showLevel = true 
 }: ElementBadgeProps) {
-  const elementInfo = ELEMENTS[element];
+  const { t } = useLanguage();
+
+  // Get element name translation
+  const getElementName = (elementType: Element) => {
+    const elementMap: Record<Element, string> = {
+      'wood': t('wood'),
+      'fire': t('fire'),
+      'earth': t('earth'),
+      'metal': t('metal'),
+      'water': t('water'),
+    };
+    return elementMap[elementType];
+  };
+
+  // Element emojis
+  const emojiMap: Record<Element, string> = {
+    'wood': '🌳',
+    'fire': '🔥',
+    'earth': '⛰️',
+    'metal': '✨',
+    'water': '🌊',
+  };
 
   const sizeClasses = {
     sm: 'text-2xl',
@@ -22,24 +44,16 @@ export default function ElementBadge({
     lg: 'text-6xl',
   };
 
-  const textSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-lg',
-  };
-
   return (
-    <div className="flex flex-col items-center">
-      <div className={sizeClasses[size]}>{elementInfo.emoji}</div>
-      <div className="text-center mt-2">
-        <div className={`font-bold ${textSizeClasses[size]}`} style={{ color: elementInfo.color }}>
-          {elementInfo.nameChinese} {elementInfo.title}
-          {showLevel && ` Level ${level}`}
-        </div>
-        <div className={`text-gray-600 ${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
-          {elementInfo.description}
-        </div>
+    <div className="flex flex-col items-center gap-1">
+      <div className={sizeClasses[size]}>
+        {emojiMap[element]}
       </div>
+      {showLevel && (
+        <div className="text-xs text-gray-600">
+          {getElementName(element)} · {t('level')} {level}
+        </div>
+      )}
     </div>
   );
 }
