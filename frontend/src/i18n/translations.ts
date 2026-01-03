@@ -163,6 +163,25 @@ interface TranslationStrings {
   feedbackLanguage: string;
   feedbackLanguageDesc: string;
 
+  // Authentication
+  auth: {
+    welcomeBack: 'Welcome Back',
+    loginSubtitle: 'Sign in to continue your Chinese writing journey',
+    createAccount: 'Create Account',
+    registerSubtitle: 'Start your Chinese writing journey',
+    email: 'Email',
+    username: 'Username',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    targetLevel: 'Target HSK Level',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signingIn: 'Signing in...',
+    creatingAccount: 'Creating account...',
+    noAccount: "Don't have an account?",
+    haveAccount: 'Already have an account?',
+  },
+
   // Common
   loading: string;
   loadingProfile: string;
@@ -287,6 +306,25 @@ const enTranslations: TranslationStrings = {
   chooseAppLanguage: 'Choose the language for this app',
   feedbackLanguage: 'AI Feedback Language',
   feedbackLanguageDesc: 'Choose which language you want to receive AI feedback in',
+
+  // Authentication
+  auth: {
+    welcomeBack: 'Welcome Back',
+    loginSubtitle: 'Sign in to continue your Chinese writing journey',
+    createAccount: 'Create Account',
+    registerSubtitle: 'Start your Chinese writing journey',
+    email: 'Email',
+    username: 'Username',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    targetLevel: 'Target HSK Level',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signingIn: 'Signing in...',
+    creatingAccount: 'Creating account...',
+    noAccount: "Don't have an account?",
+    haveAccount: 'Already have an account?',
+  },
 
   // Common
   loading: 'Loading...',
@@ -413,6 +451,25 @@ const zhTranslations: TranslationStrings = {
   feedbackLanguage: 'AI反馈语言',
   feedbackLanguageDesc: '选择你想要接收AI反馈的语言',
 
+  // Authentication
+  auth: {
+    welcomeBack: 'Welcome Back',
+    loginSubtitle: 'Sign in to continue your Chinese writing journey',
+    createAccount: 'Create Account',
+    registerSubtitle: 'Start your Chinese writing journey',
+    email: 'Email',
+    username: 'Username',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    targetLevel: 'Target HSK Level',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signingIn: 'Signing in...',
+    creatingAccount: 'Creating account...',
+    noAccount: "Don't have an account?",
+    haveAccount: 'Already have an account?',
+  },
+
   // Common
   loading: '加载中...',
   loadingProfile: '加载你的个人资料...',
@@ -538,6 +595,25 @@ const esTranslations: TranslationStrings = {
   feedbackLanguage: 'Idioma de Retroalimentación IA',
   feedbackLanguageDesc: 'Elige el idioma en el que deseas recibir retroalimentación de IA',
 
+  // Authentication
+  auth: {
+    welcomeBack: 'Welcome Back',
+    loginSubtitle: 'Sign in to continue your Chinese writing journey',
+    createAccount: 'Create Account',
+    registerSubtitle: 'Start your Chinese writing journey',
+    email: 'Email',
+    username: 'Username',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    targetLevel: 'Target HSK Level',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signingIn: 'Signing in...',
+    creatingAccount: 'Creating account...',
+    noAccount: "Don't have an account?",
+    haveAccount: 'Already have an account?',
+  },
+
   // Common
   loading: 'Cargando...',
   loadingProfile: 'Cargando tu perfil...',
@@ -662,6 +738,25 @@ const frTranslations: TranslationStrings = {
   chooseAppLanguage: 'Choisissez la langue pour cette application',
   feedbackLanguage: 'Langue de Retour IA',
   feedbackLanguageDesc: 'Choisissez la langue dans laquelle vous souhaitez recevoir les commentaires IA',
+
+  // Authentication
+  auth: {
+    welcomeBack: 'Welcome Back',
+    loginSubtitle: 'Sign in to continue your Chinese writing journey',
+    createAccount: 'Create Account',
+    registerSubtitle: 'Start your Chinese writing journey',
+    email: 'Email',
+    username: 'Username',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    targetLevel: 'Target HSK Level',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signingIn: 'Signing in...',
+    creatingAccount: 'Creating account...',
+    noAccount: "Don't have an account?",
+    haveAccount: 'Already have an account?',
+  },
 
   // Common
   loading: 'Chargement...',

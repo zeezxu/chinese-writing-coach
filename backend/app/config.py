@@ -4,18 +4,21 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     """Application settings"""
-    
+
     # App
     app_name: str = "Chinese Writing Coach"
     debug: bool = True
-    
+
     # OpenAI API
     openai_api_key: str
-    
+
     # Database
     database_url: str = "sqlite:///./chinese_writing.db"
-    
-    # JWT (for later)
+
+    # JWT Authentication
+    # IMPORTANT: Generate a secure secret key for production!
+    # Use: openssl rand -hex 32
+    # Or in Python: python -c "import secrets; print(secrets.token_hex(32))"
     secret_key: str = "your-secret-key-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 1440  # 24 hours

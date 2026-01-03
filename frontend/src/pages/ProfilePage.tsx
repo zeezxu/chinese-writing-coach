@@ -1,7 +1,7 @@
 // src/pages/ProfilePage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, FileEdit } from 'lucide-react';
+import { Loader2, FileEdit, LogOut } from 'lucide-react';
 import ElementProgress from '@/components/profile/ElementProgress';
 import { essaysApi } from '@/api/essays';
 import { draftsApi } from '@/api/drafts';
@@ -9,19 +9,18 @@ import type { EssayListItem, Draft } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import LanguageSelector from '@/components/shared/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useUserStore } from '@/store/userStore';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  
-  // TODO: Get real user ID from auth store
-  const userId = '03474b93-3871-46d4-a414-7a049266b3c1'; // Temporary hardcoded
-  
+  const { user, logout } = useUserStore();
+
   const [loading, setLoading] = useState(true);
   const [essays, setEssays] = useState<EssayListItem[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [stats, setStats] = useState({
-    username: 'Tom',
+    username: user?.username || 'User',
     totalEssays: 0,
     averageScore: 0,
     bestScore: 0,
@@ -34,8 +33,8 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const [essayList, draftList] = await Promise.all([
-          essaysApi.getAll(userId, 50, 0),
-          draftsApi.getAll(userId),
+          essaysApi.getAll(50, 0),
+          draftsApi.getAll(),
         ]);
         
         setEssays(essayList);
@@ -70,7 +69,7 @@ export default function ProfilePage() {
     };
 
     fetchData();
-  }, [userId]);
+  }, []);
 
   const handleDeleteDraft = async (draftId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -288,6 +287,29 @@ export default function ProfilePage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Logout Button */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Account</h2>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p className="font-medium text-gray-900">{user?.email}</p>
+              <p className="text-sm text-gray-600">Logged in as {user?.username}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
   );

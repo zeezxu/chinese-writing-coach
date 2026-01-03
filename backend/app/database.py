@@ -50,18 +50,19 @@ def get_db():
 
 
 def init_db():
-   
+
     # Import all models here so SQLAlchemy knows about them
     # This MUST be done before calling Base.metadata.create_all()
     from app.models.user import User
     from app.models.essay import Essay, Draft
     from app.models.analysis import EssayAnalysis, SampleEssay
-    
+    from app.models.password_reset import PasswordResetToken
+
     print("Creating database tables")
-    print(f"   Models to create: User, Essay, Draft, EssayAnalysis, SampleEssay")
-    
+    print(f"   Models to create: User, Essay, Draft, EssayAnalysis, SampleEssay, PasswordResetToken")
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     print("Database initialized successfully!")
     print(f"   Tables created in: {DATABASE_URL}")

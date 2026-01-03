@@ -3,14 +3,14 @@ import type { Essay, EssayListItem, EssaySubmit, Analysis } from '@/types';
 
 export const essaysApi = {
   // Submit essay for analysis
-  submit: async (userId: string, data: EssaySubmit): Promise<Analysis> => {
-    const response = await apiClient.post(`/api/essays/submit?user_id=${userId}`, data);
+  submit: async (data: EssaySubmit): Promise<Analysis> => {
+    const response = await apiClient.post('/api/essays/submit', data);
     return response.data;
   },
 
   // Get user's essays
-  getAll: async (userId: string, limit = 10, offset = 0): Promise<EssayListItem[]> => {
-    const response = await apiClient.get(`/api/essays?user_id=${userId}&limit=${limit}&offset=${offset}`);
+  getAll: async (limit = 10, offset = 0): Promise<EssayListItem[]> => {
+    const response = await apiClient.get(`/api/essays?limit=${limit}&offset=${offset}`);
     return response.data;
   },
 

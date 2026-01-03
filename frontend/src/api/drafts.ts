@@ -1,22 +1,43 @@
-// src/api/drafts.ts
 import apiClient from './client';
-import type { Draft } from '@/types';
+
+export interface Draft {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  theme: string;
+  hsk_level: number;
+  char_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DraftCreate {
+  title: string;
+  content: string;
+  theme: string;
+  hsk_level: number;
+  char_count: number;
+}
+
+export interface DraftUpdate {
+  title?: string;
+  content?: string;
+  theme?: string;
+  hsk_level?: number;
+  char_count?: number;
+}
 
 export const draftsApi = {
-  // Create new draft
-  create: async (userId: string, data: {
-    title?: string;
-    content?: string;
-    theme?: string;
-    hsk_level?: number;
-  }): Promise<Draft> => {
-    const response = await apiClient.post(`/api/drafts?user_id=${userId}`, data);
+  // Create draft
+  create: async (data: DraftCreate): Promise<Draft> => {
+    const response = await apiClient.post('/api/drafts', data);
     return response.data;
   },
 
-  // Get user's drafts
-  getAll: async (userId: string): Promise<Draft[]> => {
-    const response = await apiClient.get(`/api/drafts?user_id=${userId}`);
+  // Get all drafts
+  getAll: async (): Promise<Draft[]> => {
+    const response = await apiClient.get('/api/drafts');
     return response.data;
   },
 
@@ -27,12 +48,7 @@ export const draftsApi = {
   },
 
   // Update draft
-  update: async (draftId: string, data: {
-    title?: string;
-    content?: string;
-    theme?: string;
-    hsk_level?: number;
-  }): Promise<Draft> => {
+  update: async (draftId: string, data: DraftUpdate): Promise<Draft> => {
     const response = await apiClient.put(`/api/drafts/${draftId}`, data);
     return response.data;
   },

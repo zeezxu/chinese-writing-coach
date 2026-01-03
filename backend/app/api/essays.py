@@ -18,6 +18,7 @@ from app.schemas import (
     MessageResponse
 )
 from app.services.writing_analyzer import WritingAnalyzer
+from app.auth import get_current_active_user
 
 # Create router
 router = APIRouter(prefix="/api/essays", tags=["Essays"])
@@ -29,31 +30,23 @@ analyzer = WritingAnalyzer()
 @router.post("/submit", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED)
 async def submit_essay(
     essay_data: EssaySubmit,
-    user_id: str,  # TODO: Get from JWT token later
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
-    Submit an essay for analysis
-    
+    Submit an essay for analysis (requires authentication)
+
     This endpoint:
     1. Creates essay record in database
     2. Analyzes the essay using AI
     3. Stores analysis results
     4. Returns complete analysis
-    
+
     **Note:** This requires OpenAI API credits to work!
     """
-    # Check if user exists (temporary - will use JWT auth later)
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    
-    # Create essay record
+    # Create essay record for authenticated user
     essay = Essay(
-        user_id=user_id,
+        user_id=current_user.id,
         title=essay_data.title,
         content=essay_data.content,
         theme=essay_data.theme,
@@ -148,20 +141,20 @@ async def submit_essay(
 
 @router.get("", response_model=List[EssayListItem])
 def get_user_essays(
-    user_id: str,  # TODO: Get from JWT token later
+    current_user: User = Depends(get_current_active_user),
     limit: int = 10,
     offset: int = 0,
     db: Session = Depends(get_db)
 ):
     """
-    Get all essays for a user
-    
+    Get all essays for the authenticated user (requires authentication)
+
     Returns a list of essays with basic info and scores.
     Use offset/limit for pagination.
     """
     essays = (
         db.query(Essay)
-        .filter(Essay.user_id == user_id)
+        .filter(Essay.user_id == current_user.id)
         .order_by(Essay.submitted_at.desc())
         .limit(limit)
         .offset(offset)
@@ -188,68 +181,103 @@ def get_user_essays(
 @router.get("/{essay_id}", response_model=EssayResponse)
 def get_essay(
     essay_id: str,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
-    Get a single essay by ID
-    
+    Get a single essay by ID (requires authentication)
+
     Returns complete essay content.
+    User can only access their own essays.
     """
     essay = db.query(Essay).filter(Essay.id == essay_id).first()
-    
+
     if not essay:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Essay not found"
         )
-    
+
+    # Ensure user can only access their own essays
+    if essay.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this essay"
+        )
+
     return essay
 
 
 @router.get("/{essay_id}/analysis", response_model=AnalysisResponse)
 def get_essay_analysis(
     essay_id: str,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
-    Get analysis results for an essay
-    
+    Get analysis results for an essay (requires authentication)
+
     Returns complete analysis with scores, details, and recommendations.
+    User can only access analysis for their own essays.
     """
+    # First check if essay exists and belongs to user
+    essay = db.query(Essay).filter(Essay.id == essay_id).first()
+
+    if not essay:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Essay not found"
+        )
+
+    if essay.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this essay's analysis"
+        )
+
     analysis = (
         db.query(EssayAnalysis)
         .filter(EssayAnalysis.essay_id == essay_id)
         .first()
     )
-    
+
     if not analysis:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Analysis not found for this essay"
         )
-    
+
     return analysis
 
 
 @router.delete("/{essay_id}", response_model=MessageResponse)
 def delete_essay(
     essay_id: str,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
-    Delete an essay and its analysis
-    
+    Delete an essay and its analysis (requires authentication)
+
     Cascade delete also removes the associated analysis.
+    User can only delete their own essays.
     """
     essay = db.query(Essay).filter(Essay.id == essay_id).first()
-    
+
     if not essay:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Essay not found"
         )
-    
+
+    # Ensure user can only delete their own essays
+    if essay.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this essay"
+        )
+
     db.delete(essay)
     db.commit()
-    
+
     return MessageResponse(message="Essay deleted successfully")

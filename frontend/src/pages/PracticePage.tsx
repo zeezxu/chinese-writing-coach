@@ -61,9 +61,6 @@ export default function PracticePage() {
     setIsSavingDraft(true);
 
     try {
-      // TODO: Get real user ID from auth store
-      const userId = '03474b93-3871-46d4-a414-7a049266b3c1';
-
       if (currentDraftId) {
         // Update existing draft
         await draftsApi.update(currentDraftId, {
@@ -75,11 +72,12 @@ export default function PracticePage() {
         alert('Draft updated! 💾');
       } else {
         // Create new draft
-        const draft = await draftsApi.create(userId, {
+        const draft = await draftsApi.create({
           title: data.title,
           content: data.content,
           theme: selectedTheme,
           hsk_level: selectedLevel,
+          char_count: data.content.match(/[\u4e00-\u9fa5]/g)?.length || 0,
         });
         setCurrentDraftId(draft.id);
         alert('Draft saved! 💾');
@@ -97,15 +95,13 @@ export default function PracticePage() {
     setIsSubmitting(true);
 
     try {
-      const userId = '03474b93-3871-46d4-a414-7a049266b3c1';
-
       console.log('Submitting essay...', {
         ...data,
         level: selectedLevel,
         theme: selectedTheme,
       });
 
-      const analysis = await essaysApi.submit(userId, {
+      const analysis = await essaysApi.submit({
         title: data.title,
         content: data.content,
         theme: selectedTheme,
