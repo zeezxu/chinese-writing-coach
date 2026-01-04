@@ -14,16 +14,15 @@ export default function RegisterPage() {
     username: '',
     password: '',
     confirmPassword: '',
-    target_hsk_level: 3,
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'target_hsk_level' ? parseInt(value) : value
+      [name]: value
     }));
   };
 
@@ -50,7 +49,6 @@ export default function RegisterPage() {
         email: formData.email,
         username: formData.username,
         password: formData.password,
-        target_hsk_level: formData.target_hsk_level,
         preferred_language: language,
       });
       setAuth(response.user, response.access_token);
@@ -118,27 +116,6 @@ export default function RegisterPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               placeholder="Choose a username"
             />
-          </div>
-
-          {/* HSK Level */}
-          <div>
-            <label htmlFor="target_hsk_level" className="block text-sm font-medium text-gray-700 mb-2">
-              {t.auth.targetLevel || 'Target HSK Level'}
-            </label>
-            <select
-              id="target_hsk_level"
-              name="target_hsk_level"
-              value={formData.target_hsk_level}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-            >
-              <option value={1}>HSK 1</option>
-              <option value={2}>HSK 2</option>
-              <option value={3}>HSK 3</option>
-              <option value={4}>HSK 4</option>
-              <option value={5}>HSK 5</option>
-              <option value={6}>HSK 6</option>
-            </select>
           </div>
 
           {/* Password */}
