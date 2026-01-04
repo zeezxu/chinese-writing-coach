@@ -11,6 +11,7 @@ interface UserStore {
   setToken: (token: string | null) => void;
   setAuth: (user: User, token: string) => void;
   setLanguage: (lang: string) => void;
+  updateUser: (updates: Partial<User>) => void;
   logout: () => void;
 }
 
@@ -29,6 +30,10 @@ export const useUserStore = create<UserStore>()(
       setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
 
       setLanguage: (lang) => set({ language: lang }),
+
+      updateUser: (updates) => set((state) => ({
+        user: state.user ? { ...state.user, ...updates } : null
+      })),
 
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
     }),

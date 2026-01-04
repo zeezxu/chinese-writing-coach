@@ -163,6 +163,18 @@ interface TranslationStrings {
   feedbackLanguage: string;
   feedbackLanguageDesc: string;
 
+  // HSK Level
+  targetHSKLevel: string;
+  chooseTargetHSK: string;
+  changesSavedAuto: string;
+  selectHSKLevel: string;
+  hskLevelDesc: string;
+
+  // Account
+  account: string;
+  loggedInAs: string;
+  logOut: string;
+
   // Authentication
   auth: {
     welcomeBack: 'Welcome Back',
@@ -306,6 +318,18 @@ const enTranslations: TranslationStrings = {
   chooseAppLanguage: 'Choose the language for this app',
   feedbackLanguage: 'AI Feedback Language',
   feedbackLanguageDesc: 'Choose which language you want to receive AI feedback in',
+
+  // HSK Level
+  targetHSKLevel: 'Target HSK Level',
+  chooseTargetHSK: 'Choose your target HSK level',
+  changesSavedAuto: 'This helps us tailor feedback to your learning goals. Changes are saved automatically.',
+  selectHSKLevel: 'Select Your HSK Level',
+  hskLevelDesc: 'Choose your target HSK level. This helps us tailor feedback to your learning goals. You can change this later in your profile.',
+
+  // Account
+  account: 'Account',
+  loggedInAs: 'Logged in as',
+  logOut: 'Log Out',
 
   // Authentication
   auth: {
@@ -451,6 +475,18 @@ const zhTranslations: TranslationStrings = {
   feedbackLanguage: 'AI反馈语言',
   feedbackLanguageDesc: '选择你想要接收AI反馈的语言',
 
+  // HSK Level
+  targetHSKLevel: '目标HSK级别',
+  chooseTargetHSK: '选择你的目标HSK级别',
+  changesSavedAuto: '这有助于我们根据你的学习目标定制反馈。更改会自动保存。',
+  selectHSKLevel: '选择你的HSK级别',
+  hskLevelDesc: '选择你的目标HSK级别。这有助于我们根据你的学习目标定制反馈。你可以稍后在个人资料中更改。',
+
+  // Account
+  account: '账户',
+  loggedInAs: '登录身份',
+  logOut: '退出登录',
+
   // Authentication
   auth: {
     welcomeBack: 'Welcome Back',
@@ -595,6 +631,18 @@ const esTranslations: TranslationStrings = {
   feedbackLanguage: 'Idioma de Retroalimentación IA',
   feedbackLanguageDesc: 'Elige el idioma en el que deseas recibir retroalimentación de IA',
 
+  // HSK Level
+  targetHSKLevel: 'Nivel HSK Objetivo',
+  chooseTargetHSK: 'Elige tu nivel HSK objetivo',
+  changesSavedAuto: 'Esto nos ayuda a adaptar la retroalimentación a tus objetivos de aprendizaje. Los cambios se guardan automáticamente.',
+  selectHSKLevel: 'Selecciona Tu Nivel HSK',
+  hskLevelDesc: 'Elige tu nivel HSK objetivo. Esto nos ayuda a adaptar la retroalimentación a tus objetivos de aprendizaje. Puedes cambiarlo más tarde en tu perfil.',
+
+  // Account
+  account: 'Cuenta',
+  loggedInAs: 'Conectado como',
+  logOut: 'Cerrar Sesión',
+
   // Authentication
   auth: {
     welcomeBack: 'Welcome Back',
@@ -738,6 +786,18 @@ const frTranslations: TranslationStrings = {
   chooseAppLanguage: 'Choisissez la langue pour cette application',
   feedbackLanguage: 'Langue de Retour IA',
   feedbackLanguageDesc: 'Choisissez la langue dans laquelle vous souhaitez recevoir les commentaires IA',
+
+  // HSK Level
+  targetHSKLevel: 'Niveau HSK Cible',
+  chooseTargetHSK: 'Choisissez votre niveau HSK cible',
+  changesSavedAuto: 'Cela nous aide à adapter les commentaires à vos objectifs d\'apprentissage. Les modifications sont enregistrées automatiquement.',
+  selectHSKLevel: 'Sélectionnez Votre Niveau HSK',
+  hskLevelDesc: 'Choisissez votre niveau HSK cible. Cela nous aide à adapter les commentaires à vos objectifs d\'apprentissage. Vous pouvez le modifier plus tard dans votre profil.',
+
+  // Account
+  account: 'Compte',
+  loggedInAs: 'Connecté en tant que',
+  logOut: 'Se Déconnecter',
 
   // Authentication
   auth: {

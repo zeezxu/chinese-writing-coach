@@ -5,6 +5,7 @@ import { Loader2, FileEdit, LogOut } from 'lucide-react';
 import ElementProgress from '@/components/profile/ElementProgress';
 import { essaysApi } from '@/api/essays';
 import { draftsApi } from '@/api/drafts';
+import { authApi } from '@/api/auth';
 import type { EssayListItem, Draft } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import LanguageSelector from '@/components/shared/LanguageSelector';
@@ -14,7 +15,7 @@ import { useUserStore } from '@/store/userStore';
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user, logout } = useUserStore();
+  const { user, logout, updateUser } = useUserStore();
 
   const [loading, setLoading] = useState(true);
   const [essays, setEssays] = useState<EssayListItem[]>([]);
@@ -26,6 +27,16 @@ export default function ProfilePage() {
     bestScore: 0,
     streakDays: 0,
   });
+  const [showHSKModal, setShowHSKModal] = useState(false);
+  const [selectedHSK, setSelectedHSK] = useState(user?.target_hsk_level || 3);
+  const [isSavingHSK, setIsSavingHSK] = useState(false);
+
+  // Show HSK selection modal if user hasn't set their level yet
+  useEffect(() => {
+    if (user && !user.target_hsk_level) {
+      setShowHSKModal(true);
+    }
+  }, [user]);
 
   // Fetch user's essays and drafts
   useEffect(() => {
@@ -91,6 +102,20 @@ export default function ProfilePage() {
     navigate('/practice', { state: { draft } });
   };
 
+  const handleSaveHSK = async () => {
+    setIsSavingHSK(true);
+    try {
+      await authApi.updateSettings({ target_hsk_level: selectedHSK });
+      updateUser({ target_hsk_level: selectedHSK });
+      setShowHSKModal(false);
+    } catch (error) {
+      console.error('Failed to save HSK level:', error);
+      alert('Failed to save HSK level. Please try again.');
+    } finally {
+      setIsSavingHSK(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -104,6 +129,52 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
+      {/* HSK Level Selection Modal for First-Time Users */}
+      {showHSKModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {t('selectHSKLevel')}
+            </h2>
+            <p className="text-gray-600 mb-6">
+              {t('hskLevelDesc')}
+            </p>
+
+            <div className="space-y-3 mb-6">
+              {[1, 2, 3, 4, 5, 6].map((level) => (
+                <button
+                  key={level}
+                  onClick={() => setSelectedHSK(level)}
+                  className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                    selectedHSK === level
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300'
+                  }`}
+                >
+                  <div className="font-semibold text-gray-900">HSK {level}</div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {level === 1 && 'Beginner - 150 words'}
+                    {level === 2 && 'Elementary - 300 words'}
+                    {level === 3 && 'Intermediate - 600 words'}
+                    {level === 4 && 'Upper Intermediate - 1200 words'}
+                    {level === 5 && 'Advanced - 2500 words'}
+                    {level === 6 && 'Proficient - 5000+ words'}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleSaveHSK}
+              disabled={isSavingHSK}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSavingHSK ? t('saving') : 'Continue'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
@@ -161,6 +232,41 @@ export default function ProfilePage() {
 
       {/* Language Selector */}
       <LanguageSelector />
+
+      {/* HSK Level Settings */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 {t('targetHSKLevel')}</h2>
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="hsk-level" className="block text-sm font-medium text-gray-700 mb-2">
+              {t('chooseTargetHSK')}
+            </label>
+            <select
+              id="hsk-level"
+              value={user?.target_hsk_level || 3}
+              onChange={(e) => {
+                const level = parseInt(e.target.value);
+                setSelectedHSK(level);
+                handleSaveHSK();
+              }}
+              disabled={isSavingHSK}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value={1}>HSK 1 - {t('beginner')} (150 words)</option>
+              <option value={2}>HSK 2 - Elementary (300 words)</option>
+              <option value={3}>HSK 3 - {t('intermediate')} (600 words)</option>
+              <option value={4}>HSK 4 - Upper {t('intermediate')} (1200 words)</option>
+              <option value={5}>HSK 5 - {t('advanced')} (2500 words)</option>
+              <option value={6}>HSK 6 - Proficient (5000+ words)</option>
+            </select>
+          </div>
+
+          <p className="text-sm text-gray-600">
+            {t('changesSavedAuto')}
+          </p>
+        </div>
+      </div>
 
       {/* Drafts Section */}
       {drafts.length > 0 && (
@@ -291,12 +397,12 @@ export default function ProfilePage() {
 
       {/* Logout Button */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Account</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">{t('account')}</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div>
               <p className="font-medium text-gray-900">{user?.email}</p>
-              <p className="text-sm text-gray-600">Logged in as {user?.username}</p>
+              <p className="text-sm text-gray-600">{t('loggedInAs')} {user?.username}</p>
             </div>
           </div>
           <button
@@ -307,7 +413,7 @@ export default function ProfilePage() {
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            Log Out
+            {t('logOut')}
           </button>
         </div>
       </div>

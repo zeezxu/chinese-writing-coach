@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useUserStore } from '@/store/userStore';
+import { authApi } from '@/api/auth';
 
 interface LevelThemeSelectorProps {
   onSelect: (level: number, theme: string) => void;
@@ -198,15 +200,20 @@ const themeTranslations: Record<string, Record<string, string>> = {
 
 export default function LevelThemeSelector({ onSelect }: LevelThemeSelectorProps) {
   const { t, language } = useLanguage();
-  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+  const { user, updateUser } = useUserStore();
+  const userLevel = user?.target_hsk_level || 3;
+
   const [selectedTheme, setSelectedTheme] = useState<string>('');
   const [customTheme, setCustomTheme] = useState<string>('');
+  const [showLevelModal, setShowLevelModal] = useState(false);
+  const [tempLevel, setTempLevel] = useState(userLevel);
+  const [isSavingLevel, setIsSavingLevel] = useState(false);
 
   // Get translated theme
   const getTheme = (themeKey: string) => {
     const translations = themeTranslations[themeKey];
     if (!translations) return themeKey;
-    
+
     // Return translation for current language, fallback to English
     return translations[language] || translations['en'] || themeKey;
   };
@@ -255,12 +262,20 @@ export default function LevelThemeSelector({ onSelect }: LevelThemeSelectorProps
     ]},
   ];
 
-  const selectedLevelData = levels.find(l => l.level === selectedLevel);
+  const selectedLevelData = levels.find(l => l.level === userLevel);
 
-  const handleLevelSelect = (level: number) => {
-    setSelectedLevel(level);
-    setSelectedTheme('');
-    setCustomTheme('');
+  const handleChangeLevel = async () => {
+    setIsSavingLevel(true);
+    try {
+      await authApi.updateSettings({ target_hsk_level: tempLevel });
+      updateUser({ target_hsk_level: tempLevel });
+      setShowLevelModal(false);
+    } catch (error) {
+      console.error('Failed to update HSK level:', error);
+      alert('Failed to update HSK level. Please try again.');
+    } finally {
+      setIsSavingLevel(false);
+    }
   };
 
   const handleThemeSelect = (themeKey: string) => {
@@ -275,113 +290,135 @@ export default function LevelThemeSelector({ onSelect }: LevelThemeSelectorProps
   };
 
   const handleStartWriting = () => {
-    if (selectedLevel && (selectedTheme || customTheme.trim())) {
-      onSelect(selectedLevel, customTheme.trim() || selectedTheme);
+    if (selectedTheme || customTheme.trim()) {
+      onSelect(userLevel, customTheme.trim() || selectedTheme);
     }
   };
 
-  const isReadyToStart = selectedLevel && (selectedTheme || customTheme.trim());
+  const isReadyToStart = selectedTheme || customTheme.trim();
 
   return (
     <div className="space-y-6">
-      {/* Step 1: Level Selection */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
-          {t('step1')}
-        </h2>
+      {/* HSK Level Modal */}
+      {showLevelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Change HSK Level
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Select a new target HSK level. This will affect the themes and feedback you receive.
+            </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {levels.map((levelData) => (
+            <div className="mb-6">
+              <label htmlFor="level-select" className="block text-sm font-medium text-gray-700 mb-2">
+                Choose HSK Level
+              </label>
+              <select
+                id="level-select"
+                value={tempLevel}
+                onChange={(e) => setTempLevel(parseInt(e.target.value))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              >
+                <option value={1}>HSK 1 - Beginner (150 words)</option>
+                <option value={2}>HSK 2 - Elementary (300 words)</option>
+                <option value={3}>HSK 3 - Intermediate (600 words)</option>
+                <option value={4}>HSK 4 - Upper Intermediate (1200 words)</option>
+                <option value={5}>HSK 5 - Advanced (2500 words)</option>
+                <option value={6}>HSK 6 - Proficient (5000+ words)</option>
+              </select>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLevelModal(false)}
+                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleChangeLevel}
+                disabled={isSavingLevel}
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {isSavingLevel ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HSK Level Display - Top Right */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900">
+          {t('step2')}
+        </h2>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold">
+            HSK {userLevel}
+          </div>
+          <button
+            onClick={() => setShowLevelModal(true)}
+            className="px-4 py-2 border border-blue-500 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+          >
+            Change HSK Level
+          </button>
+        </div>
+      </div>
+
+      {/* Theme Selection */}
+      <div className="space-y-3">
+        {/* Suggested Themes */}
+        {selectedLevelData?.themes.map((themeKey) => {
+          const themeText = getTheme(themeKey);
+          return (
             <button
-              key={levelData.level}
-              onClick={() => handleLevelSelect(levelData.level)}
-              className={`p-4 rounded-lg border-2 transition-all text-left ${
-                selectedLevel === levelData.level
-                  ? 'border-blue-500 bg-blue-50 shadow-md'
+              key={themeKey}
+              onClick={() => handleThemeSelect(themeKey)}
+              className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                selectedTheme === themeText
+                  ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
               }`}
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className={`text-lg font-bold ${
-                    selectedLevel === levelData.level ? 'text-blue-700' : 'text-gray-900'
-                  }`}>
-                    {levelData.label}
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    {levelData.difficulty}
-                  </div>
-                </div>
-                {selectedLevel === levelData.level && (
+              <div className="flex items-center justify-between">
+                <span className={`font-medium ${
+                  selectedTheme === themeText ? 'text-blue-700' : 'text-gray-900'
+                }`}>
+                  {themeText}
+                </span>
+                {selectedTheme === themeText && (
                   <Check className="w-5 h-5 text-blue-600" />
                 )}
               </div>
             </button>
-          ))}
+          );
+        })}
+
+        {/* Custom Theme Input */}
+        <div className="relative">
+          <input
+            type="text"
+            value={customTheme}
+            onChange={(e) => handleCustomThemeChange(e.target.value)}
+            placeholder={t('customTheme')}
+            className={`w-full p-4 rounded-lg border-2 transition-all ${
+              customTheme.trim()
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          />
         </div>
       </div>
 
-      {/* Step 2: Theme Selection */}
-      {selectedLevel && (
-        <div className="animate-fadeIn">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {t('step2')}
-          </h2>
-
-          <div className="space-y-3">
-            {/* Suggested Themes */}
-            {selectedLevelData?.themes.map((themeKey) => {
-              const themeText = getTheme(themeKey);
-              return (
-                <button
-                  key={themeKey}
-                  onClick={() => handleThemeSelect(themeKey)}
-                  className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedTheme === themeText
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={`font-medium ${
-                      selectedTheme === themeText ? 'text-blue-700' : 'text-gray-900'
-                    }`}>
-                      {themeText}
-                    </span>
-                    {selectedTheme === themeText && (
-                      <Check className="w-5 h-5 text-blue-600" />
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-
-            {/* Custom Theme Input */}
-            <div className="relative">
-              <input
-                type="text"
-                value={customTheme}
-                onChange={(e) => handleCustomThemeChange(e.target.value)}
-                placeholder={t('customTheme')}
-                className={`w-full p-4 rounded-lg border-2 transition-all ${
-                  customTheme.trim()
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              />
-            </div>
-          </div>
-
-          {/* Start Writing Button */}
-          {isReadyToStart && (
-            <button
-              onClick={handleStartWriting}
-              className="mt-6 w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg animate-fadeIn"
-            >
-              {t('startWriting')} →
-            </button>
-          )}
-        </div>
+      {/* Start Writing Button */}
+      {isReadyToStart && (
+        <button
+          onClick={handleStartWriting}
+          className="mt-6 w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg animate-fadeIn"
+        >
+          {t('startWriting')} →
+        </button>
       )}
     </div>
   );
